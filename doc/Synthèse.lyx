@@ -1,0 +1,477 @@
+#LyX 2.5 created this file. For more info see https://www.lyx.org/
+\lyxformat 643
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children no
+\language english
+\language_package default
+\inputencoding auto-legacy
+\fontencoding auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification default
+\crossref_package refstyle
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\backgroundcolor none
+\fontcolor none
+\notefontcolor lightgray
+\boxbgcolor red
+\table_border_color default
+\table_odd_row_color default
+\table_even_row_color default
+\table_alt_row_colors_start 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\docbook_mathml_version 0
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Détails SIMPLER-R
+\end_layout
+
+\begin_layout Subsection
+Etape 1 :
+ prédiction de la préssion
+\end_layout
+
+\begin_layout Subsubsection
+Calcul des pseudos-vitesses
+\end_layout
+
+\begin_layout Standard
+Conservation de la quantité de mouvement :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\frac{a^{u}_{iJK}}{\alpha}u^{*}_{i,J,K}+\sum_{nb}a^{u}_{nb}u^{*}_{nb}=\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)+b^{u}_{i,J,K}+\frac{1-\alpha}{\alpha}a^{u}_{iJK}u^{n-1}_{i,J,K}\label{eq:momentum_u_base}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+où 
+\begin_inset Formula $u^{*}_{i,J,K}$
+\end_inset
+
+ est la vitesse de la sous itération en cours,
+ et 
+\begin_inset Formula $u^{n-1}_{i,J,K}$
+\end_inset
+
+ la vitesse à l'issue de la précédente itération.
+\end_layout
+
+\begin_layout Standard
+L'éq.
+ précédente se met sous la forme :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+u^{*}_{i,J,K}=\frac{\alpha}{a^{u}_{iJK}}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)+\frac{\alpha}{a^{u}_{iJK}}\left[b^{u}_{i,J,K}-\sum_{nb}a^{u}_{nb}u^{*}_{nb}\right]+\left(1-\alpha\right)u^{n-1}_{i,J,K}\label{eq:u}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On définit la pseudo-vitesse 
+\begin_inset Formula $\hat{u}{}_{i,J,K}$
+\end_inset
+
+ :
+\begin_inset Formula 
+\begin{equation}
+\hat{u}{}_{i,J,K}=\frac{\alpha}{a^{u}_{iJK}}\left[b^{u}_{i,J,K}-\sum_{nb}a^{u}_{nb}u^{*}_{nb}\right]+\left(1-\alpha\right)u^{n-1}_{i,J,K}\label{eq:u_hat}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit :
+\begin_inset Formula 
+\begin{equation}
+u^{*}_{i,J,K}=\frac{\alpha}{a^{u}_{iJK}}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)+\hat{u}{}_{i,J,K}\label{eq:u_fction_u_hat}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Mise à jour de la pression (implicite)
+\end_layout
+
+\begin_layout Standard
+On rappelle l'équation de continuité :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\nabla\cdot\mathbf{u}=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Sous forme discrétisée :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{1}{\Delta x}\left(u_{i+1,J,K}-u_{i,J,K}\right)+\frac{1}{\Delta y}\left(v_{I,j+1,K}-v_{I,j,K}\right)+\frac{1}{\Delta z}\left(w_{I,J,k+1}-w_{I,J,k}\right)=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ici l'objectif est de calculer la pression 
+\begin_inset Formula $P^{*}$
+\end_inset
+
+ qui correspond au champ de vitesse actuel 
+\begin_inset Formula $\mathbf{v}^{\text{*}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+En remplacant les vitesses par leurs expressions en fonction de la pression,
+ on obtient :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{gather}
+\frac{1}{\Delta x}\hat{u}_{i+1,J,K}+d^{u}_{i+1,J,K}\left(\frac{P^{*}_{I+1,J,K}-P^{*}_{I,J,K}}{\Delta x}\right)-\frac{1}{\Delta x}\hat{u}_{i,J,K}-d^{u}_{i,J,K}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)\nonumber \\
++\frac{1}{\Delta x}\hat{v}_{,j+1,K}+d^{v}_{I,j+1,K}\left(\frac{P^{*}_{I,J+1,K}-P^{*}_{I,J,K}}{\Delta y}\right)-\frac{1}{\Delta x}\hat{v}_{I,j,K}-d^{v}_{I,j,K}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I,J-1,K}}{\Delta y}\right)\nonumber \\
+\frac{1}{\Delta x}\hat{w}_{I,J,k+1}+d^{w}_{I,J,k+1}\left(\frac{P^{*}_{I,J,K+1}-P^{*}_{I,J,K}}{\Delta z}\right)-\frac{1}{\Delta x}\hat{w}_{I,J,k}-d^{w}_{I,J,k}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I,J,K-1}}{\Delta z}\right)=0\label{eq:continuity_dev}
+\end{gather}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+avec les coefficients 
+\begin_inset Formula $d$
+\end_inset
+
+ définis de façon suivante 
+\begin_inset Formula $d^{u}_{i+1,J,K}=\frac{\alpha}{a^{u}_{i+1JK}\Delta x}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit en intégrant la relaxation :
+\begin_inset Formula 
+\begin{equation}
+\frac{a^{P}_{IJK}}{\alpha^{P}}P^{*}_{IJK}+\sum_{nb}a^{P}_{nb}P^{*}_{nb}=+\frac{1}{\Delta x}\left(\hat{u}_{i+1,J,K}-\hat{u}_{i,J,K}\right)+\frac{1}{\Delta y}\left(\hat{v}_{I,j+1,K}-\hat{v}_{I,j,K}\right)+\frac{1}{\Delta z}\left(\hat{w}_{I,J,k+1}-\hat{w}_{I,J,k}\right)+\frac{1-\alpha^{P}}{\alpha^{P}}a^{P}_{IJK}P^{n-1}_{I,J,K}\label{pressure_eq}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On utilise l'éq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:u_fction_u_hat"
+nolink "false"
+
+\end_inset
+
+ pour mettre à jour 
+\begin_inset Formula $u^{*}_{i,J,K}$
+\end_inset
+
+.
+ On recommence alors la procédure 
+\begin_inset Formula $n$
+\end_inset
+
+ fois en utilisant le nouveau champ de pression et vitesse.
+ 
+\end_layout
+
+\begin_layout Standard
+Note :
+ la vitesse calculée ici est uniquement utilisée pour le calcul du champ de pression;
+ elle est en effet remise à jour dans l'étape 2 de manière à vérifier la conservation de la quantité de mouvement.
+\end_layout
+
+\begin_layout Subsection
+Etape 2 :
+ mise à jour des vitesses (implicite)
+\end_layout
+
+\begin_layout Standard
+Résolution des système de conservation de la quantité de mouvement (voir eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:momentum_u_base"
+nolink "false"
+
+\end_inset
+
+) à partir du champ de pression calculé auparavant.
+\end_layout
+
+\begin_layout Subsection
+Etape 3 :
+ correction
+\end_layout
+
+\begin_layout Standard
+L'approche est ici d'utiliser une itération de type SIMPLER :
+\end_layout
+
+\begin_layout Enumerate
+Calcul de la pseudo-vitesse (eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:u_hat"
+nolink "false"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Enumerate
+Résolution de l'équation de correction de pression :
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On suppose que 
+\begin_inset Formula $u^{n}_{i,J,K}=u^{*}_{i,J,K}+u^{'}_{i,J,K}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+On pose (approximation SIMPLE) :
+ 
+\begin_inset Formula 
+\[
+u^{'}_{i,J,K}=\frac{\alpha}{a^{u}_{iJK}}\left(\frac{P^{'}_{I,J,K}-P^{'}_{I-1,J,K}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+ou (approximation SIMPLEC) :
+\begin_inset Formula 
+\[
+u^{'}_{i,J,K}=\frac{1}{\frac{a^{u}_{iJK}}{\alpha}+\sum_{nb}a^{u}_{nb}}\left(\frac{P^{'}_{I,J,K}-P^{'}_{I-1,J,K}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On injecte dans l'équation de continuité ce qui permet d'écrire :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{gather*}
+\frac{1}{\Delta x}u^{*}_{i+1,J,K}+d^{u}_{i+1,J,K}\left(\frac{P^{'}_{I+1,J,K}-P^{'}_{I,J,K}}{\Delta x}\right)-\frac{1}{\Delta x}u^{*}_{i,J,K}-d^{u}_{i,J,K}\left(\frac{P^{'}_{I,J,K}-P^{'}_{I-1,J,K}}{\Delta x}\right)\\
++\frac{1}{\Delta x}v^{*}_{,j+1,K}+d^{v}_{I,j+1,K}\left(\frac{P^{'}_{I,J+1,K}-P^{'}_{I,J,K}}{\Delta y}\right)-\frac{1}{\Delta x}v^{*}_{I,j,K}-d^{v}_{I,j,K}\left(\frac{P^{'}_{I,J,K}-P^{'}_{I,J-1,K}}{\Delta y}\right)\\
+\frac{1}{\Delta x}w^{*}_{I,J,k+1}+d^{w}_{I,J,k+1}\left(\frac{P^{'}_{I,J,K+1}-P^{'}_{I,J,K}}{\Delta z}\right)-\frac{1}{\Delta x}w^{*}_{I,J,k}-d^{w}_{I,J,k}\left(\frac{P^{'}_{I,J,K}-P^{'}_{I,J,K-1}}{\Delta z}\right)=0
+\end{gather*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+où les coefficients 
+\begin_inset Formula $d$
+\end_inset
+
+ sont définis selon le type d'approximation retenue
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+On corrige la vitesse en utilisant l'équation 
+\begin_inset Formula $u^{n}_{i,J,K}=u^{*}_{i,J,K}+u^{'}_{i,J,K}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+On remet à jour la pression en résolvant l'éq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "pressure_eq"
+nolink "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Question :
+ la résolution du système linéaire de correction de pression prend la majeur partie du temps de calcul.
+ Comment accélérer les choses ?
+\end_layout
+
+\begin_layout Standard
+Relaxation :
+ on impose une variation max par rapport à l'itération précédente de la forme:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u^{*}_{i,J,K}-u^{n-1}_{i,J,K}=\alpha\left[\frac{1}{a^{u}_{iJK}}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)-\frac{1}{a^{u}_{iJK}}\sum_{nb}a^{u}_{nb}u^{*}_{nb}+\frac{b^{u}_{i,J,K}}{a^{u}_{iJK}}-u^{n-1}_{i,J,K}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il faudrait également borner cette variation par rapport à un paramètre global pour limiter les possibilités de divergences lorsque les vitesses sont importantes.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u^{*}_{i,J,K}-u^{n-1}_{i,J,K}=\min\left(\alpha\left[\frac{1}{a^{u}_{iJK}}\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)-\frac{1}{a^{u}_{iJK}}\sum_{nb}a^{u}_{nb}u^{*}_{nb}+\frac{b^{u}_{i,J,K}}{a^{u}_{iJK}}-u^{n-1}_{i,J,K}\right],\Delta u_{max}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+a^{u}_{iJK}u^{*}_{i,J,K}-a^{u}_{iJK}u^{n-1}_{i,J,K}=\min\left(\alpha\left[\left(\frac{P^{*}_{I,J,K}-P^{*}_{I-1,J,K}}{\Delta x}\right)-\sum_{nb}a^{u}_{nb}u^{*}_{nb}+b^{u}_{i,J,K}-u^{n-1}_{i,J,K}\right],a^{u}_{iJK}\Delta u_{max}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

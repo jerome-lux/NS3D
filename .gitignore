@@ -1,0 +1,74 @@
+# =====================================================================
+#  NS3D - .gitignore
+#
+#  C++ / CMake project (Eigen3, Blitz++, VTK) with a small test suite.
+#  Only build artifacts, editor/OS cruft and the *runtime outputs* of
+#  the solver are ignored. Sources (src/), the test image (data/) and
+#  the test configuration (tests/) are tracked.
+# =====================================================================
+
+# --- build tree -------------------------------------------------------
+# The recommended out-of-source build directory.
+/build/
+build-*/
+
+# CMake generated files (in case of in-source builds)
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+cmake_install.cmake.in
+cmake_macros/
+Makefile
+install_manifest.txt
+CTestTestfile.cmake
+DartConfiguration.cmake
+Testing/
+_deps/
+
+# --- object / library / binary artifacts ------------------------------
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.app
+
+# --- solver runtime outputs ------------------------------------------
+# Files written by NS3D when it is run (in the current working directory):
+#   INFO-<dir>-<image>.log  RES-<dir>-<image>.csv
+#   P-<dir>-<image>.vti     V-<dir>-<image>.vti
+#   Vx-<dir>-<image>.vti    Vy-<dir>-<image>.vti   Vz-<dir>-<image>.vti
+#   <image>-SAVE-<n>.vti
+# Per-algorithm logs written by tests/compare_algorithms.sh (cmp_<METHOD>.log)
+INFO-*.log
+RES-*.csv
+cmp_*.log
+P-*.vti
+V-*.vti
+Vx-*.vti
+Vy-*.vti
+Vz-*.vti
+*-SAVE-*.vti
+
+# --- editor / IDE -----------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+
+# --- operating system -------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- misc -------------------------------------------------------------
+__pycache__/
+*.pyc
+*.tmp

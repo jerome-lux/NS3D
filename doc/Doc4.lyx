@@ -1,0 +1,2650 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Résolution numérique des équations de Navier-Stokes stationnaires
+\end_layout
+
+\begin_layout Section
+Equation de conservation de la quantité de mouvement
+\end_layout
+
+\begin_layout Subsection
+Forme générale
+\end_layout
+
+\begin_layout Standard
+L'équation se met sous la forme suivante dans le cas incompressible :
+\begin_inset Formula 
+\[
+u_{j}\rho\frac{\partial u_{i}}{\partial x_{j}}=-\frac{\partial p}{\partial x_{i}}+\mu\frac{\partial}{\partial x_{j}}\left(\frac{\partial u_{i}}{\partial x_{j}}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En développant :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mu\left(\frac{\partial^{2}u}{\partial x^{2}}+\frac{\partial^{2}u}{\partial y^{2}}+\frac{\partial^{2}u}{\partial z^{2}}\right)-\rho u\frac{\partial u}{\partial x}-\rho v\frac{\partial u}{\partial y}-\rho w\frac{\partial u}{\partial z}=\frac{\partial p}{\partial x}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mu\left(\frac{\partial^{2}v}{\partial x^{2}}+\frac{\partial^{2}v}{\partial y^{2}}+\frac{\partial^{2}v}{\partial z^{2}}\right)-\rho u\frac{\partial v}{\partial x}-\rho v\frac{\partial v}{\partial y}-\rho w\frac{\partial v}{\partial z}=\frac{\partial p}{\partial y}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mu\left(\frac{\partial^{2}w}{\partial x^{2}}+\frac{\partial^{2}w}{\partial y^{2}}+\frac{\partial^{2}w}{\partial z^{2}}\right)-\rho u\frac{\partial w}{\partial x}-\rho v\frac{\partial w}{\partial y}-\rho w\frac{\partial w}{\partial z}=\frac{\partial p}{\partial z}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dans une formulation volume finis, l'équation précédente est intégrée sur
+ un volume de contrôle.
+\end_layout
+
+\begin_layout Standard
+Le terme inertiel est de la forme 
+\begin_inset Formula $\nabla\cdot\left(\mathbf{u}\otimes\mathbf{u}\right)$
+\end_inset
+
+, ce qui permet d'appliquer Ostrogradsky pour avoir :
+\begin_inset Formula 
+\[
+\int_{V}\nabla\cdot\left(\mathbf{u}\otimes\mathbf{u}\right)dV=\int_{S}\mathbf{n}\cdot\left(\mathbf{u}\otimes\mathbf{u}\right)dS
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit en notation d'Einstein :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\int_{S}n_{i}u_{i}u_{j}dS
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Le terme diffusif se mets sous la forme :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{1}{V}\int_{S}\mu\nabla u\cdot\mathbf{n}dS-\frac{1}{V}\int_{S}\rho\left(\mathbf{n}\cdot\mathbf{u}\right)udS=\frac{1}{V}\int_{V}\frac{\partial P}{\partial x}dV
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{1}{V}\int_{S}\mu\nabla v\cdot\mathbf{n}dS-\frac{1}{V}\int_{S}\rho\left(\mathbf{n}\cdot\mathbf{u}\right)vdS=\frac{1}{V}\int_{V}\frac{\partial P}{\partial y}dV
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{1}{V}\int_{S}\mu\nabla w\cdot\mathbf{n}dS-\frac{1}{V}\int_{S}\rho\left(\mathbf{n}\cdot\mathbf{u}\right)wdS=\frac{1}{V}\int_{V}\frac{\partial P}{\partial z}dV
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Discrétisation
+\end_layout
+
+\begin_layout Standard
+On considère un maillage décalé vitesse / pression.
+ Le maillage associé à la pression est noté par les indices 
+\begin_inset Formula $I,J,K$
+\end_inset
+
+.
+ Les maillages pour les trois composantes 
+\begin_inset Formula $u$
+\end_inset
+
+, 
+\begin_inset Formula $v$
+\end_inset
+
+, 
+\begin_inset Formula $w$
+\end_inset
+
+ sont respectivement 
+\begin_inset Formula $\left(i,j,K\right)$
+\end_inset
+
+, 
+\begin_inset Formula $\left(I,j,K\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $\left(I,J,k\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Les flux diffusifs sont notés 
+\begin_inset Formula $D$
+\end_inset
+
+, les flux convectifs 
+\begin_inset Formula $F$
+\end_inset
+
+.
+ Les équations précédentes se mettent sous la forme générale :
+\begin_inset Formula 
+\[
+\sum_{n}n_{n}\left(D_{n}-F_{n}\right)=\Delta P
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dans le cas d'un maillage cartésien homogène, les flux sont indicés par
+ la position de la face par rapport au centre du voxel 
+\begin_inset Formula $W\left(i,j,K\right)$
+\end_inset
+
+, 
+\begin_inset Formula $E\left(i+1,J,K\right)$
+\end_inset
+
+, 
+\begin_inset Formula $S\left(I,J,k\right)$
+\end_inset
+
+, 
+\begin_inset Formula $N\left(I,J,k+1\right)$
+\end_inset
+
+, 
+\begin_inset Formula $T\left(I,j,K\right)$
+\end_inset
+
+, 
+\begin_inset Formula $B\left(I,j+1,K\right)$
+\end_inset
+
+.
+ l'indice 
+\begin_inset Formula $C$
+\end_inset
+
+ indique le noeud en cours.
+ L'exposant indique quant à lui la composante de la vitesse.
+ On peut alors écrire :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sum_{n}n_{n}\left(-F_{n}^{u}+D_{n}^{u}\right)=\frac{P_{I,J,K-}P_{I-1,J,K}}{\Delta x}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sum_{n}n_{n}\left(-F_{n}^{v}+D_{n}^{v}\right)=\frac{P_{I,J,K-}P_{I,J-1,K}}{\Delta x}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula 
+\[
+\sum_{n}n_{n}\left(-F_{n}^{w}+D_{n}^{w}\right)=\frac{P_{I,J,K-}P_{I,J,K-1}}{\Delta x}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Flux diffusifs
+\end_layout
+
+\begin_layout Standard
+Cas de la composante 
+\begin_inset Formula $u$
+\end_inset
+
+ :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+D_{W}^{u}=\mu\frac{u_{i,J,K}-u_{i-1,J,K}}{\Delta x^{2}}=\mu\frac{u_{C}-u_{W}}{\Delta x^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+D_{E}^{u}=\mu\frac{u_{i+1,J,K}-u_{i,J,K}}{\Delta x^{2}}=\mu\frac{u_{E}-u_{C}}{\Delta x^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+D_{B}^{u}=\mu\frac{u_{i,J,K}-u_{i,J-1,K}}{\Delta y^{2}}=\mu\frac{u_{C}-u_{B}}{\Delta y^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+D_{T}^{u}=\mu\frac{u_{i,J+1,K}-u_{i,J,K}}{\Delta y^{2}}=\mu\frac{u_{T}-u_{C}}{\Delta y^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+D_{S}^{u}=\mu\frac{u_{i,J,K}-u_{i,J,K-1}}{\Delta z^{2}}=\mu\frac{u_{C}-u_{S}}{\Delta z^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+D_{N}^{u}=\mu\frac{u_{i,J,K+1}-u_{i,J,K}}{\Delta z^{2}}=\mu\frac{u_{N}-u_{C}}{\Delta z^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Flux convectifs
+\end_layout
+
+\begin_layout Standard
+Si le Peclet local est inférieur à 2, on utilise un schéma centré, dans
+ le cas contraire, un schéma upwind.
+ 
+\end_layout
+
+\begin_layout Standard
+On note 
+\begin_inset Formula $u^{*},$
+\end_inset
+
+
+\begin_inset Formula $v^{*}$
+\end_inset
+
+ et 
+\begin_inset Formula $w^{*}$
+\end_inset
+
+ les champs de vitesses à l'itération précédente.
+ On évalue les termes sur les surfaces par interpolation linéaire.
+\end_layout
+
+\begin_layout Standard
+Dans le cas de la composante 
+\begin_inset Formula $u$
+\end_inset
+
+ le schéma centrée s'écrit :
+\begin_inset Formula 
+\[
+F_{W}^{u}=\frac{\rho}{4\Delta x}\left(u_{i,J,K}+u_{i-1,J,K}\right)\left(u_{i,J,K}^{*}+u_{i-1,j,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{E}^{u}=\frac{\rho}{4\Delta x}\left(u_{i+1,J,K}+u_{i,J,K}\right)\left(u_{i+1,J,K}^{*}+u_{i,J,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{B}^{u}=\frac{\rho}{4\Delta x}\left(u_{i,J,K}+u_{i,J-1,K}\right)\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{T}^{u}=\frac{\rho}{4\Delta x}\left(u_{i,J,K}+u_{i,J+1,K}\right)\left(v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{S}^{u}=\frac{\rho}{4\Delta x}\left(u_{i,J,K}+u_{i,J,K-1}\right)\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{N}^{u}=\frac{\rho}{4\Delta x}\left(u_{i,J,K}+u_{i,J,K+1}\right)\left(w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Schéma 
+\begin_inset Quotes eld
+\end_inset
+
+Upwind
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Schéma à utiliser si le Peclet local est supérieur à 2 et si les vitesses
+ au noeud et adjacente ont toutes les deux le même signe (dans le cas de
+ signes opposés, on utilisera un schéma centré).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{W}^{u}=\frac{\rho}{\Delta x}\begin{cases}
+u_{W}u_{W}^{*} & \mbox{ si\,}u_{W}^{*},u_{c}^{*}>0\\
+u_{C}u_{C}^{*} & \mbox{ si\,}u_{W}^{*},u_{c}^{*}<0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{E}^{u}=\frac{\rho}{\Delta x}\begin{cases}
+u_{C}u_{C}^{*} & \mbox{ si\,}u_{E}^{*},u_{c}^{*}>0\\
+u_{E}u_{E}^{*} & \mbox{ si\,}u_{E}^{*},u_{c}^{*}<0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{B}^{u}=\frac{\rho}{2\Delta y}\begin{cases}
+u_{B}\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*}\right) & \mbox{ si\,}v_{I-1,j,K}^{*}+v_{I,j,K}^{*}>0\\
+u_{C}\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*}\right) & \mbox{ si\,}v_{I-1,j,K}^{*}+v_{I,j,K}^{*}<0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{T}^{u}=\frac{\rho}{2\Delta y}\begin{cases}
+u_{C}\left(v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}\right) & \mbox{ si\,}v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}>0\\
+u_{T}\left(v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}\right) & \mbox{ si\,}v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}<0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{S}^{u}=\frac{\rho}{2\Delta z}\begin{cases}
+u_{S}\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*}\right) & \mbox{ si\,}w_{I-1,J,k}^{*}+w_{I,J,k}^{*}>0\\
+u_{C}\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*}\right) & \mbox{ si\,}w_{I-1,J,k}^{*}+w_{I,J,k}^{*}<0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+F_{N}^{u}=\frac{\rho}{2\Delta z}\begin{cases}
+u_{C}\left(w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}\right) & \mbox{ si\,}w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}>0\\
+u_{N}\left(w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}\right) & \mbox{ si\,}w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}<0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Construction du système linéaire
+\end_layout
+
+\begin_layout Standard
+On donne les expressions des flux sur chaque face pour les trois systèmes
+ issus de la discrétisation de l'équation de conservation de la quantité
+ de mouvement.
+\end_layout
+
+\begin_layout Standard
+Composante 
+\begin_inset Formula $u$
+\end_inset
+
+ :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Pe\leq2$
+\end_inset
+
+ :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{W}=-\mu\frac{u_{i,J,K}-u_{i-1,J,K}}{\Delta x^{2}}+\frac{\rho}{4\Delta x}\left(u_{i,J,K}+u_{i-1,J,K}\right)\left(u_{i,J,K}^{*}+u_{i-1,j,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{E}=\mu\frac{u_{i+1,J,K}-u_{i,J,K}}{\Delta x^{2}}-\frac{\rho}{4\Delta x}\left(u_{i+1,J,K}+u_{i,J,K}\right)\left(u_{i+1,J,K}^{*}+u_{i,J,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{B}=-\mu\frac{u_{i,J,K}-u_{i,J-1,K}}{\Delta y^{2}}+\frac{\rho}{4\Delta y}\left(u_{i,J,K}+u_{i,J-1,K}\right)\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{T}=\mu\frac{u_{i,J+1,K}-u_{i,J,K}}{\Delta y^{2}}-\frac{\rho}{4\Delta y}\left(u_{i,J,K}+u_{i,J+1,K}\right)\left(v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{S}=-\mu\frac{u_{i,J,K}-u_{i,J,K-1}}{\Delta z^{2}}+\frac{\rho}{4\Delta z}\left(u_{i,J,K}+u_{i,J,K-1}\right)\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*}\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{N}=\mu\frac{u_{i,J,K+1}-u_{i,J,K}}{\Delta z^{2}}-\frac{\rho}{4\Delta z}\left(u_{i,J,K}+u_{i,J,K+1}\right)\left(w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En mettant en facteur les inconnues :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{W}=u_{i,J,K}\left(\frac{-\mu}{\Delta x^{2}}+\frac{\rho}{4\Delta x}\left(u_{i+-1,J,K}^{*}+u_{i,J,K}^{*}\right)\right)+u_{i-1,J,K}\left(\frac{\mu}{\Delta x^{2}}-+\frac{\rho}{4\Delta x}\left(u_{i-1,J,K}^{*}+u_{i,J,K}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{E}=u_{i,J,K}\left(\frac{-\mu}{\Delta x^{2}}-\frac{\rho}{4\Delta x}\left(u_{i+1,J,K}^{*}+u_{i,J,K}^{*}\right)\right)+u_{i+1,J,K}\left(\frac{\mu}{\Delta x^{2}}-\frac{\rho}{4\Delta x}\left(u_{i+1,J,K}^{*}+u_{i,J,K}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{B}=u_{i,J,K}\left(-\frac{\mu}{\Delta y^{2}}+\frac{\rho}{4\Delta y}\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*}\right)\right)+u_{i,J-1,K}\left(\frac{\mu}{\Delta y^{2}}+\frac{\rho}{4\Delta y}\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{T}=u_{i,J,K}\left(-\frac{\mu}{\Delta y^{2}}-\frac{\rho}{4\Delta y}\left(v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}\right)\right)+u_{i,J+1,K}\left(\frac{\mu}{\Delta y^{2}}-\frac{\rho}{4\Delta y}\left(v_{I-1,j+1,K}^{*}+v_{I,j+1,K}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{S}=u_{i,J,K}\left(-\frac{\mu}{\Delta z^{2}}+\frac{\rho}{4\Delta x}\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*}\right)\right)+u_{i,J,K-1}\left(\frac{\mu}{\Delta z^{2}}+\frac{\rho}{4\Delta x}\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{N}=u_{i,J,K}\left(-\frac{\mu}{\Delta z^{2}}+-\frac{\rho}{4\Delta x}\left(w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}\right)\right)+u_{i,J,K+1}\left(\frac{\mu}{\Delta z^{2}}-\frac{\rho}{4\Delta x}\left(w_{I-1,J,k+1}^{*}+w_{I,J,k+1}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si Pe>2 (et si les vitesses de part et d'autre de l'interface on les mêmes
+ signes) :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{W}=u_{i,J,K}\left(\frac{-\mu}{\Delta x^{2}}+\frac{\rho}{\Delta x}\min\left(u_{i,J,K}^{*},0\right)\right)+u_{i-1,J,K}\left(\frac{\mu}{\Delta x^{2}}+\frac{\rho}{\Delta x}\max\left(u_{i-1,J,K}^{*},0\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{E}=u_{i,J,K}\left(\frac{-\mu}{\Delta x^{2}}+\frac{\rho}{\Delta x}\min\left(-u_{i,J,K}^{*},0\right)\right)+u_{i+1,J,K}\left(\frac{\mu}{\Delta x^{2}}+\frac{\rho}{\Delta x}\max\left(-u_{i+1,J,K}^{*},0\right)\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{B}=u_{i,J,K}\left(-\frac{\mu}{\Delta y^{2}}+\frac{\rho}{2\Delta y}\min\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*},0\right)\right)+u_{i,J-1,K}\left(\frac{\mu}{\Delta y^{2}}+\frac{\rho}{2\Delta y}\max\left(v_{I-1,j,K}^{*}+v_{I,j,K}^{*},0\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{T}=u_{i,J,K}\left(-\frac{\mu}{\Delta y^{2}}+\frac{\rho}{2\Delta y}\min\left(-v_{I-1,j+1,K}^{*}-v_{I,j+1,K}^{*},0\right)\right)+u_{i,J+1,K}\left(\frac{\mu}{\Delta y^{2}}+\frac{\rho}{2\Delta y}\max\left(-v_{I-1,j+1,K}^{*}-v_{I,j+1,K}^{*},0\right)\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{S}=u_{i,J,K}\left(-\frac{\mu}{\Delta z^{2}}+\frac{\rho}{2\Delta z}\min\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*},0\right)\right)+u_{i,J,K-1}\left(\frac{\mu}{\Delta z^{2}}+\frac{\rho}{2\Delta z}\max\left(w_{I-1,J,k}^{*}+w_{I,J,k}^{*},0\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{N}=u_{i,J,K}\left(-\frac{\mu}{\Delta z^{2}}+\frac{\rho}{2\Delta z}\min\left(-w_{I-1,J,k+1}^{*}-w_{I,J,k+1}^{*},0\right)\right)+u_{i,J,K+1}\left(\frac{\mu}{\Delta z^{2}}+\frac{\rho}{2\Delta z}\max\left(-w_{I-1,J,k+1}^{*}-w_{I,J,k+1}^{*},0\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Les autres composantes se déduisent de la même manière.
+\end_layout
+
+\begin_layout Subsection
+Forme générale
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+a_{i,J,K}^{u}u_{i,J,K}+\sum_{nb}a_{nb}^{u}u_{nb}=\frac{P_{I,J,K}-P_{I-1,J,K}}{\Delta x}+b_{i,J,K}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+a_{I,j,K}^{v}u_{I,j,K}+\sum_{nb}a_{nb}^{v}u_{nb}=\frac{P_{I,J,K}-P_{I,J-1,K}}{\Delta y}+b_{I,j,K}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+a_{I,J,k}^{w}u_{i,J,k}+\sum_{nb}a_{nb}^{w}u_{nb}=\frac{P_{I,J,K}-P_{I,J,K-1}}{\Delta z}+b_{I,J,k}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Relaxation : on note par un exposant 
+\begin_inset Formula $n$
+\end_inset
+
+ les valeurs calculées à l'itération en cours.
+ 
+\end_layout
+
+\begin_layout Standard
+La variation de 
+\begin_inset Formula $u$
+\end_inset
+
+ par rapport à l'itération précédente (
+\begin_inset Formula $u_{i,J,K}^{n-1}$
+\end_inset
+
+) est supposée s'écrire :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u_{i,J,K}^{n}-u_{i,J,K}^{n-1}=\alpha\left(-\frac{\sum_{nb}a_{nb}^{u}u_{nb}^{n}}{a_{i,J,K}^{u}}+\frac{1}{a_{i,J,K}^{u}}\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+b_{i,J,K}-u_{i,J,K}^{n-1}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+où 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ est un paramètre de relaxation <1.
+\end_layout
+
+\begin_layout Standard
+En réarrangeant on obtient finalement :
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}}{\alpha}u_{i,J,K}^{n}+\sum_{nb}a_{nb}^{u}u_{nb}^{n}=\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+b_{i,J,K}+\frac{1-\alpha}{\alpha}a_{iJK}^{u}u_{i,J,K}^{n-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Conditions aux limites
+\end_layout
+
+\begin_layout Itemize
+Interfaces solide /fluide : la vitesse est nulle.
+ Le terme convectif du voisin est nul mais il faut évaluer le terme 
+\begin_inset Formula $\nabla u\cdot\mathbf{n}$
+\end_inset
+
+ à l'interface
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Exemple : interface à 
+\begin_inset Formula $i,j+1,K$
+\end_inset
+
+ du point 
+\begin_inset Formula $i,J,K$
+\end_inset
+
+.
+ La méthode 
+\begin_inset Quotes eld
+\end_inset
+
+ghost-cells
+\begin_inset Quotes erd
+\end_inset
+
+ ou une approximation de la dérivée par un schéma d'ordre 1 décentré donnent
+ le même résultat :
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{T}=u_{i,J,K}\left(-\frac{2\mu}{\Delta y^{2}}-\frac{\rho}{2\Delta y}v_{i,j+1,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ici 
+\begin_inset Formula $v_{i,j+1,K}^{*}$
+\end_inset
+
+ (valeur qui n'est pas sur la grille de 
+\begin_inset Formula $v$
+\end_inset
+
+) est nulle car le(s) voxel(s) situé(s) à 
+\begin_inset Formula $I+1,J+1,K$
+\end_inset
+
+ et/ou à 
+\begin_inset Formula $I,J+1,K$
+\end_inset
+
+ sont un(des) voxel(s) solide(s) (sinon il n'y aurait pas d'interface à
+ 
+\begin_inset Formula $i,j+1,K$
+\end_inset
+
+).
+ Donc on a :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{T}=-u_{i,J,K}\frac{2\mu}{\Delta y^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Pour la composant 
+\begin_inset Formula $u$
+\end_inset
+
+, les flux 
+\begin_inset Formula $W$
+\end_inset
+
+ et 
+\begin_inset Formula $E$
+\end_inset
+
+ ne sont pas modifiés, puisque l'interface réelle est à 
+\begin_inset Formula $\Delta x$
+\end_inset
+
+ du point 
+\begin_inset Formula $u_{i,J,K}$
+\end_inset
+
+.
+ Idem pour les composantes 
+\begin_inset Formula $v$
+\end_inset
+
+ et les flux 
+\begin_inset Formula $T$
+\end_inset
+
+ et 
+\begin_inset Formula $B$
+\end_inset
+
+ et 
+\begin_inset Formula $w$
+\end_inset
+
+ avec les flux 
+\begin_inset Formula $N$
+\end_inset
+
+ et 
+\begin_inset Formula $S$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Inlet : la vitesse est supposée constante et seule la composante 
+\begin_inset Formula $u$
+\end_inset
+
+ est non nulle.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Pour la composante 
+\begin_inset Formula $u$
+\end_inset
+
+, 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{W}^{u}=u_{0,J,K}\left(\frac{-\mu}{\Delta x^{2}}+\frac{\rho}{4\Delta x}\left(u_{-1,J,K}^{*}+u_{0,J,K}^{*}\right)\right)+u_{-1,J,K}\left(\frac{\mu}{\Delta x^{2}}-+\frac{\rho}{4\Delta x}\left(u_{-1,J,K}^{*}+u_{0,J,K}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Comme 
+\begin_inset Formula $u_{0,J,K}=u_{-1,J,K}$
+\end_inset
+
+ : 
+\begin_inset Formula 
+\[
+\phi_{W}^{u}=u_{i,J,K}\frac{\rho}{\Delta x}u_{i,J,K}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note : ici 
+\begin_inset Formula $u$
+\end_inset
+
+ est constante entre 
+\begin_inset Formula $x=-\Delta x$
+\end_inset
+
+ et 
+\begin_inset Formula $x=0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Pour les autres composantes :
+\begin_inset Formula 
+\[
+\phi_{W}^{u}=-\mu\frac{v_{0,j,K}-v_{-1,j,K}}{\Delta x^{2}}+\frac{\rho}{4\Delta x}\left(v_{0,j,K}+v_{-1,j,K}\right)\left(u_{0,J,K}^{*}+u_{0,J+1,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit comme 
+\begin_inset Formula $v_{-1,j,K}=0$
+\end_inset
+
+ et 
+\begin_inset Formula $u_{0,J,K}=u_{-1,J,K}$
+\end_inset
+
+ :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{W}^{u}=v_{0,j,K}\left(-\frac{\mu}{\Delta x^{2}}+\frac{\rho}{4\Delta x}\left(u_{0,J,K}^{*}+u_{0,J+1,K}^{*}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ici 
+\begin_inset Formula $v$
+\end_inset
+
+ est nulle à 
+\begin_inset Formula $x=-\frac{\Delta x}{2}$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Outlet : vitesse constante en dehors du domaine.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Expression idem à la précédente pour la composante 
+\begin_inset Formula $u$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Pour les autres composantes on a :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{E}^{u}=\mu\frac{v_{n+1,j,K}-v_{n,j,K}}{\Delta x^{2}}+\frac{\rho}{4\Delta x}\left(v_{n,j,K}+v_{n+1,j,K}\right)\left(u_{n+1,J,K}^{*}+u_{n+1,J+1,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit comme 
+\begin_inset Formula $v_{n+1,j,K}=v_{n,j,K}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi_{E}^{u}=v_{n,j,K}\frac{\rho}{2\Delta x}\left(u_{n+1,J,K}^{*}+u_{n+1,J+1,K}^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Correction de pression (SIMPLE / SIMPLEC)
+\end_layout
+
+\begin_layout Standard
+L'équation de conservation de la quantité de mouvement s'écrit pour la vitesse
+ provisionnelle 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}}{\alpha}u_{i,J,K}^{*}+\sum_{nb}a_{nb}^{u}u_{nb}^{*}=\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+b_{i,J,K}^{u}+\frac{1-\alpha}{\alpha}a_{iJK}^{u}u_{i,J,K}^{n-1}
+\]
+
+\end_inset
+
+Ou encore : 
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}}{\alpha}u_{i,J,K}^{*}=\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)-\sum_{nb}a_{nb}^{u}u_{nb}^{*}+b_{i,J,K}^{u}+\frac{1-\alpha}{\alpha}a_{iJK}^{u}u_{i,J,K}^{n-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En notant : 
+\begin_inset Formula 
+\[
+\mathbf{H}_{i,J,K}\left(u^{*}\right)=-\sum_{nb}a_{nb}^{u}u_{nb}^{*}+b_{i,J,K}^{u}+\frac{1-\alpha}{\alpha}a_{iJK}^{u}u_{i,J,K}^{n-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On peut écrire sous la forme simplifiée :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}}{\alpha}u_{i,J,K}^{*}=\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+\mathbf{H}_{i,J,K}\left(u^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u_{i,J,K}^{*}=\frac{\alpha}{a_{iJK}^{u}}\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+\frac{\alpha}{a_{iJK}^{u}}\mathbf{H}_{i,J,K}\left(u^{*}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La vitesse 
+\begin_inset Quotes eld
+\end_inset
+
+finale
+\begin_inset Quotes erd
+\end_inset
+
+ de l'itération en cours 
+\begin_inset Formula $u^{n}=u^{*}+u^{'}$
+\end_inset
+
+ satisfait à l'équation de conservation de la quantité de mouvement.
+ En soustrayant les deux équations pour 
+\begin_inset Formula $u^{n}$
+\end_inset
+
+ et 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+, on obtient :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\frac{a_{iJK}^{u}}{\alpha}\left(u_{i,J,K}^{n}-u_{i,J,K}^{*}\right)+\sum_{nb}a_{nb}^{u}\left(u_{i,J,K}^{n}-u_{i,J,K}^{*}\right)=\\
+\left(\frac{P_{I,J,K}^{n}-P_{I,J,K}^{*}-\left(P_{I-1,J,K}^{n}-P_{I-1,J,K}^{*}\right)}{\Delta x}\right)+b_{i,J,K}^{u}-b_{i,J,K}^{u}-\frac{1-\alpha}{\alpha}a_{iJK}^{u}\left(u_{i,J,K}^{n-1}-u_{i,J,K}^{n-1}\right)
+\end{multline*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finalement on obtient :
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}}{\alpha}u_{i,J,K}^{'}+\sum_{nb}a_{nb}^{u}u_{nb}^{'}=\left(\frac{P_{I,J,K}^{'}-P_{I-1,J,K}^{'}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Approximation SIMPLE :
+\end_layout
+
+\begin_layout Standard
+On suppose :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sum_{nb}a_{nb}^{u}u_{nb}^{'}=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+d'où :
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula 
+\[
+u_{i,J,K}^{'}=\frac{\alpha}{a_{iJK}^{u}}\left(\frac{P_{I,J,K}^{'}-P_{I-1,J,K}^{'}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Approximation SIMPLEC :
+\end_layout
+
+\begin_layout Standard
+On approxime le terme négligé précédemment par :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sum_{nb}a_{nb}^{u}u_{nb}^{'}\simeq u_{i,J,K}^{'}\sum_{nb}a_{nb}^{u}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+d'où :
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula 
+\[
+u_{i,J,K}^{'}=\frac{1}{\frac{a_{iJK}^{u}}{\alpha}+\sum_{nb}a_{nb}^{u}}\left(\frac{P_{I,J,K}^{'}-P_{I-1,J,K}^{'}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On trouve également l'approximation : 
+\begin_inset Formula 
+\[
+a_{iJK}^{u}u_{i,J,K}^{'}+\sum_{nb}a_{nb}^{u}u_{nb}^{'}\simeq u_{i,J,K}^{'}\frac{1}{2}\left(\sum_{nb}\left|a_{nb}\right|^{u}+\left|\frac{a_{iJK}^{u}}{\alpha}\right|\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Implémentation numérique
+\end_layout
+
+\begin_layout Standard
+Dans le cas d'une approche SIMPLE ou SIMPLEC, on peut écrire la correction
+ de vitesse sous la forme générale : 
+\begin_inset Formula 
+\[
+u_{i,J,K}^{'}=d_{i,J,K}^{u}\left(\frac{P_{I,J,K}^{'}-P_{I-1,J,K}^{'}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note sur le schéma SIMPLEC : dans le cas d'un écoulement où les termes inertiels
+ sont négligeables, il est nécessaire que le facteur de relaxation soit
+ inférieur à 1, car le terme 
+\begin_inset Formula $a_{iJK}^{u}+\sum_{nb}a_{nb}^{u}$
+\end_inset
+
+ est alors toujours nul.
+\end_layout
+
+\begin_layout Standard
+On rappelle l'équation de continuité :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\nabla\cdot\mathbf{u}=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Sous forme discrétisée :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{1}{\Delta x}\left(u_{i+1,J,K}-u_{i,J,K}\right)+\frac{1}{\Delta y}\left(v_{I,j+1,K}-v_{I,j,K}\right)+\frac{1}{\Delta z}\left(w_{I,J,k+1}-w_{I,J,k}\right)=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En remplaçant 
+\begin_inset Formula $u=u^{*}+u^{'}$
+\end_inset
+
+ et en développant 
+\begin_inset Formula $u^{'}$
+\end_inset
+
+ on obtient :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{gather*}
+\frac{1}{\Delta x}u_{i+1,J,K}^{*}+d_{i+1,J,K}^{u}\left(\frac{P_{I+1,J,K}^{'}-P_{I,J,K}^{'}}{\Delta x^{2}}\right)-\frac{1}{\Delta x}u_{i,J,K}^{*}-d_{i,J,K}^{u}\left(\frac{P_{I,J,K}^{'}-P_{I-1,J,K}^{'}}{\Delta x^{2}}\right)\\
++\frac{1}{\Delta x}v_{,j+1,K}^{*}+d_{I,j+1,K}^{v}\left(\frac{P_{I,J+1,K}^{'}-P_{I,J,K}^{'}}{\Delta y^{2}}\right)-\frac{1}{\Delta x}v_{I,j,K}^{*}-d_{I,j,K}^{v}\left(\frac{P_{I,J,K}^{'}-P_{I,J-1,K}^{'}}{\Delta y^{2}}\right)\\
+\frac{1}{\Delta x}w_{I,J,k+1}^{*}+d_{I,J,k+1}^{w}\left(\frac{P_{I,J,K+1}^{'}-P_{I,J,K}^{'}}{\Delta z^{2}}\right)-\frac{1}{\Delta x}w_{I,J,k}^{*}-d_{I,J,k}^{w}\left(\frac{P_{I,J,K}^{'}-P_{I,J,K-1}^{'}}{\Delta z^{2}}\right)
+\end{gather*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Les six termes s'écrivent : 
+\begin_inset Formula 
+\[
+E_{W}=-\frac{d_{i,J,K}^{u}}{\Delta x^{2}}P_{I,J,K}^{'}+\frac{d_{i,J,K}^{u}}{\Delta x^{2}}P_{I-1,J,K}^{'}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+E_{E}=-\frac{d_{i+1,J,K}^{u}}{\Delta x^{2}}P_{I,J,K}^{'}+\frac{d_{i+1,J,K}^{u}}{\Delta x^{2}}P_{I+1,J,K}^{'}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+E_{B}=-\frac{d_{I,j,K}^{v}}{\Delta y^{2}}P_{I,J,K}^{'}+\frac{d_{I,j,K}^{v}}{\Delta y^{2}}P_{I,J-1,K}^{'}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+E_{T}=-\frac{d_{I,j+1,K}^{v}}{\Delta y^{2}}P_{I,J,K}^{'}+\frac{d_{I,j+1,K}^{v}}{\Delta y^{2}}P_{I,J+1,K}^{'}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+E_{S}=-\frac{d_{I,J,k}^{w}}{\Delta z^{2}}P_{I,J,K}^{'}+\frac{d_{I,J,k}^{w}}{\Delta z^{2}}P_{I,J,K-1}^{'}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+E_{N}=-\frac{d_{I,J,k+1}^{w}}{\Delta z^{2}}P_{I,J,K}^{'}+\frac{d_{I,J,k+1}^{w}}{\Delta z^{2}}P_{I,J,K+1}^{'}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Et les contributions au second membre associées :
+\begin_inset Formula 
+\[
+b_{W}=\frac{1}{\Delta x}u_{i,J,K}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+b_{E}=-\frac{1}{\Delta x}u_{i+1,J,K}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+b_{B}=\frac{1}{\Delta x}v_{I,j,K}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+b_{T}=-\frac{1}{\Delta x}v_{I,j+1,K}^{*}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+b_{S}=\frac{1}{\Delta x}w_{I,J,k}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+b_{N}=-\frac{1}{\Delta x}w_{I,J,k+1}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Conditions aux limites :
+\end_layout
+
+\begin_layout Standard
+Pression imposée (inlet / outlet) : la correction est nulle, donc contribution
+ nulle du voisin concerné.
+\end_layout
+
+\begin_layout Standard
+Vitesse imposée (nulle) aux interfaces : le terme 
+\begin_inset Formula $u$
+\end_inset
+
+ est nul, il n'y a donc pas de contribution ni dans la matrice ni au second
+ membre pour ce voisin (correction nulle)
+\end_layout
+
+\begin_layout Subsection
+SIMPLER
+\end_layout
+
+\begin_layout Enumerate
+On définit la pseudo-vitesse 
+\begin_inset Formula $\hat{u}$
+\end_inset
+
+ telle que :
+\begin_inset Formula 
+\[
+\hat{u}_{i,J,K}^{n}=-\frac{\sum_{nb}a_{nb}^{u}u_{nb}^{n}}{a_{iJK}^{u}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Ce qui permet d'écrire la conservation de la quantité de mouvement sous
+ la forme : 
+\begin_inset Formula 
+\[
+u_{i,J,K}^{n}=\hat{u}_{i,J,K}^{n}+\frac{1}{a_{iJK}^{u}}\left(\frac{P_{I,J,K}^{n}-P_{I-1,J,K}^{n}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Note : l'équation n'est pas relaxée ici, puisque l'on s'en sert uniquement
+ pour dériver la pression à partir du champ de vitesse de l'itération précédente.
+\end_layout
+
+\begin_layout Enumerate
+On injecte le développement précédant de 
+\begin_inset Formula $u^{n}$
+\end_inset
+
+ dans l'équation de continuité afin de calculer 
+\begin_inset Formula $P^{n+1}$
+\end_inset
+
+.
+ On utilise l'équation de correction de pression écrite auparavant pour
+ SIMPLE/SIMPLEC mais en utilisant 
+\begin_inset Formula $\hat{u}$
+\end_inset
+
+ à la place de 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+ et en modifiant les conditions aux limites si besoin (i.e.
+ pression imposée).
+\end_layout
+
+\begin_layout Enumerate
+On résout les équations de conservation de la quantité de mouvement avec
+ relaxation en utilisant 
+\begin_inset Formula $P^{n+1}$
+\end_inset
+
+ afin de déterminer le champ 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+ (idem SIMPLE).
+\end_layout
+
+\begin_layout Enumerate
+On résout l'équation de correction de pression en utilsant les vitesses
+ provisionnelles 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+ (idem SIMPLE) afin de calculer 
+\begin_inset Formula $P^{'}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+La pression n'est pas corrigée, mais on utilise 
+\begin_inset Formula $P^{'}$
+\end_inset
+
+ afin de corriger la vitesse (idem SIMPLE) :
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula 
+\[
+u_{i,J,K}^{'}=\frac{1}{\frac{a_{iJK}^{u}}{\alpha}}\left(\frac{P_{I,J,K}^{'}-P_{I-1,J,K}^{'}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Implémentation numérique :
+\end_layout
+
+\begin_layout Enumerate
+Assemblage et stockage des matrices 
+\begin_inset Formula $A_{u}$
+\end_inset
+
+, 
+\begin_inset Formula $A_{v}$
+\end_inset
+
+ et 
+\begin_inset Formula $A_{w}$
+\end_inset
+
+ et calcul des pseudo-vitesses lors de l'assemblage : besoin de stockage
+ des champs 
+\begin_inset Formula $\hat{u}$
+\end_inset
+
+, 
+\begin_inset Formula $\hat{v}$
+\end_inset
+
+ et 
+\begin_inset Formula $\hat{w}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Assemblage de la matrice 
+\begin_inset Formula $\mathbf{A}_{p}$
+\end_inset
+
+ pour le calcul de 
+\begin_inset Formula $P^{n+1}$
+\end_inset
+
+ à partir des pseudo-vitesses 
+\begin_inset Formula $\hat{u}$
+\end_inset
+
+, 
+\begin_inset Formula $\hat{v}$
+\end_inset
+
+ et 
+\begin_inset Formula $\hat{w}$
+\end_inset
+
+.
+ Résolution 
+\begin_inset Formula $\mathbf{A}_{p}P^{n+1}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Assemblage des second membres 
+\begin_inset Formula $b_{u}$
+\end_inset
+
+, 
+\begin_inset Formula $b_{v}$
+\end_inset
+
+ et 
+\begin_inset Formula $b_{w}$
+\end_inset
+
+.
+ Résolution des systèmes 
+\begin_inset Formula $A_{u}u^{*}=b_{u}$
+\end_inset
+
+ pour le calcul de 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+, 
+\begin_inset Formula $v^{*}$
+\end_inset
+
+ et 
+\begin_inset Formula $w^{*}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Résolution du système de correction de pression en utilisant les champs
+ 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+, 
+\begin_inset Formula $v^{*}$
+\end_inset
+
+ et 
+\begin_inset Formula $w^{*}$
+\end_inset
+
+.
+ Champ 
+\begin_inset Formula $P^{'}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Correction des vitesses en utilisant 
+\begin_inset Formula $P^{'}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Besoin supplémentaire par rapport à SIMPLE/SIMPLEC : stockage des pseudos-vitess
+es 
+\begin_inset Formula $\hat{u}$
+\end_inset
+
+, 
+\begin_inset Formula $\hat{v}$
+\end_inset
+
+ et 
+\begin_inset Formula $\hat{w}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+MODIF : utiliser la formulation SIMPLEC pour la partie correction de vitesse
+ : à tester !
+\end_layout
+
+\begin_layout Subsection
+IDEAL
+\end_layout
+
+\begin_layout Standard
+Algorithme basé sur 3 étapes comprenant des sous-itérations.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+'E
+\end_layout
+
+\end_inset
+
+tape 1: 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+De la même manière que pour SIMPLER on définit une pseudo vitesse.
+ L'exposant 
+\begin_inset Quotes eld
+\end_inset
+
+TEMP
+\begin_inset Quotes erd
+\end_inset
+
+ indique que cette valeur est calculée sur la base du champ de vitesse déjà
+ connu (TEMP-1, qui vaut n-1 au début de l'itération).
+ 
+\begin_inset Formula 
+\[
+\hat{u}_{i,J,K}^{TEMP}=-\frac{\sum_{nb}a_{nb}^{u}u_{nb}^{TEMP-1}}{a_{iJK}^{u}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+On a alors :
+\begin_inset Formula 
+\[
+u_{i,J,K}^{TEMP}=\hat{u}_{i,J,K}^{TEMP}+\frac{1}{a_{iJK}^{u}}\left(\frac{P_{I,J,K}^{TEMP}-P_{I-1,J,K}^{TEMP}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+L'équation permet de calculer le champ de pression intermédiaire 
+\begin_inset Formula $P^{TEMP}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+On utilise ensuite cette même équation avec le nouveau champ P pour mettre
+ à jour les vitesses.
+\end_layout
+
+\begin_layout Enumerate
+On répète l'opération n fois.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Calcul du champ de vitesses provisionnelles : résolution de l'équation de
+ la conservation de la quantité de mouvement.
+\end_layout
+
+\begin_layout Enumerate
+On répète à nouveau l'étape 1, mais avec comme base le nouveau champ de
+ vitesse.
+\end_layout
+
+\begin_layout Standard
+Le gros avantage de cet algorithme est que l'on résout l'équation de pression,
+ mais pas l'équation de correction qui se révèle beaucoup plus longue numériquem
+ent (conditionnement ?)
+\end_layout
+
+\begin_layout Subsection
+SIMPLERR
+\end_layout
+
+\begin_layout Standard
+Un mix entre IDEAL et SIMPLER
+\end_layout
+
+\begin_layout Standard
+Les deux premières étapes sont identiques à IDEAL.
+ Lors de la 3ème étape, on calcule une correction de pression comme dans
+ SIMPLER afin de corriger la vitesse uniquement.
+ La pression est mise à jour comme lors de la première itération de SIMPLER
+ avec le champ de vitesses corrigées.
+\end_layout
+
+\begin_layout Subsection
+PISO
+\end_layout
+
+\begin_layout Enumerate
+Calcul des champs de vitesses 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+,
+\begin_inset Formula $v^{*}$
+\end_inset
+
+,
+\begin_inset Formula $w^{*}$
+\end_inset
+
+ (conservation quant.
+ mouvt avec relaxation).
+\end_layout
+
+\begin_layout Enumerate
+Calcul de la correction de pression (idem SIMPLE) 
+\begin_inset Formula $P^{'}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Correction de la vitesse & pression : 
+\begin_inset Formula $P^{**}$
+\end_inset
+
+, 
+\begin_inset Formula $u^{**}$
+\end_inset
+
+,
+\begin_inset Formula $v^{**}$
+\end_inset
+
+,
+\begin_inset Formula $w^{**}$
+\end_inset
+
+ (idem SIMPLE).
+\end_layout
+
+\begin_layout Enumerate
+Calcul de la seconde correction en utilisant la valeur de la correction
+ précédente 
+\begin_inset Formula $u^{'}$
+\end_inset
+
+(besoin de stockage des corrections).
+ On définit : 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}}{\alpha}u_{i,J,K}^{''}=-\sum_{nb}a_{nb}^{u}u_{nb}^{'}+\left(\frac{P_{I,J,K}^{''}-P_{I-1,J,K}^{''}}{\Delta x}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Ici les coeffs 
+\begin_inset Formula $a_{iJK}$
+\end_inset
+
+ sont recalculés à partir des valeurs de 
+\begin_inset Formula $u^{**}$
+\end_inset
+
+ car cela ne 
+\begin_inset Quotes eld
+\end_inset
+
+coute pas cher
+\begin_inset Quotes erd
+\end_inset
+
+ d'un point de vue numérique.
+\end_layout
+
+\begin_layout Standard
+Comme les champs 
+\begin_inset Formula $u^{**}$
+\end_inset
+
+,
+\begin_inset Formula $v^{**}$
+\end_inset
+
+,
+\begin_inset Formula $w^{**}$
+\end_inset
+
+ satisfont l'équation de continuité, on a : 
+\begin_inset Formula 
+\[
+\nabla\cdot\mathbf{u}^{***}=\underbrace{\nabla\cdot\mathbf{u}^{**}}_{=0}+\nabla\cdot\mathbf{u}^{''}=\nabla\cdot\mathbf{u}^{''}=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+On résout donc l'équation de correction de pression en utilisant 
+\begin_inset Formula $\mathbf{u}^{'}$
+\end_inset
+
+ à la place de 
+\begin_inset Formula $\mathbf{u}^{*}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Actualisation de la pression & vitesses : 
+\begin_inset Formula $P^{n+1}=P^{**}+P^{''}$
+\end_inset
+
+, 
+\begin_inset Formula $u^{n+1}=u^{**}+u^{'}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+SIMPLEX
+\end_layout
+
+\begin_layout Standard
+guess a velocity fieleld, u 0 and v 0 to evaluate the coefficients and the
+ constant of momentum equations; 
+\end_layout
+
+\begin_layout Standard
+(2) guess a pressure ®eld, p* ; 
+\end_layout
+
+\begin_layout Standard
+(3) compute the equations u, d e , v and d n to get u * e ; d e , v * n
+ and d n equations; 
+\end_layout
+
+\begin_layout Standard
+(4) solve the pressure correction equation to acquire p 0 according to the
+ value of u * e ; d e , v * n and d n ; 
+\end_layout
+
+\begin_layout Standard
+(5) improve the velocity ®eld according to p 0 , d e and d n ; 
+\end_layout
+
+\begin_layout Standard
+(6) using the improved velocity ®eld (u* + u 0 ; v* + v 0 ) and the pressure
+ ®eld ( p* + p 0 ); return to step 3.
+ Repeat this cycle until convergence is achieved.
+ The velocity need to be underrelax ed except for the pressure.
+\end_layout
+
+\begin_layout Section
+Convergence
+\end_layout
+
+\begin_layout Standard
+Lorsque le gradient de pression augmente, le Reynolds peut devenir localement
+ très important (dans la limite du régime laminaire).
+ La convergence n'est alors plus assurée, même lorsque les paramètres de
+ relaxation sont très petits.
+ 
+\end_layout
+
+\begin_layout Standard
+Afin de limiter l'apparitions d'oscillations et de divergences du champ
+ de vitesse, on limite (en plus de la relaxation) les variations max de
+ la vitesse à chaque itération après résolution du système de conservation
+ de la quantité de mouvement (max = alpha x v_ref), de même les corrections
+ de vitesses sont limitées (du coup, cela dégrade la divergence en fi de
+ correction, mais améliore la stabilité)
+\end_layout
+
+\begin_layout Subsection
+Amélioration de la linéarisation : 
+\end_layout
+
+\begin_layout Standard
+Mise à jour du champ de vitesse en deux étapes :
+\end_layout
+
+\begin_layout Itemize
+Champ de vitesse 
+\begin_inset Formula $u^{*}$
+\end_inset
+
+ calculé en résolvant 
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}\left(u^{n-1}\right)}{\alpha}u_{i,J,K}^{*}+\sum_{nb}a_{nb}^{u}\left(u^{n-1}\right)u_{nb}^{*}=\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+b_{i,J,K}+\frac{1-\alpha}{\alpha}a_{iJK}^{u}\left(u^{n-1}\right)u_{i,J,K}^{n-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+où les 
+\begin_inset Formula $a_{iJK}^{u}\left(u^{n-1}\right)$
+\end_inset
+
+ sont calculés en utilisant 
+\begin_inset Formula $u^{n-1}$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+On recalcule le champ de vitesse 
+\begin_inset Formula $u^{**}$
+\end_inset
+
+ en utilisant les coefficients mis à jour 
+\begin_inset Formula 
+\[
+\frac{a_{iJK}^{u}\left(u^{*}\right)}{\alpha}u_{i,J,K}^{**}+\sum_{nb}a_{nb}^{u}\left(u^{*}\right)u_{nb}^{**}=\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)+b_{i,J,K}+\frac{1-\alpha}{\alpha}a_{iJK}^{u}\left(u^{*}\right)u_{i,J,K}^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On constate PARFOIS une amélioration de la convergence si on adapte le coefficie
+nt de relaxation 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Monitoring des résidus (TODO)
+\end_layout
+
+\begin_layout Standard
+En fonction de l'évolution des résidus, on modifie de manière dynamique
+ les coeffs de relaxations.
+ 
+\end_layout
+
+\begin_layout Standard
+Les résidus pour la conservations de la quantité de mouvement se mettent
+ sous la forme :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+R_{u}=\frac{\sum_{all\,nodes}\left(\frac{a_{iJK}^{u}\left(u^{n-1}\right)}{\alpha}u_{i,J,K}^{*}+\sum_{nb}a_{nb}^{u}\left(u^{n-1}\right)u_{nb}^{*}-\left(\frac{P_{I,J,K}^{n-1}-P_{I-1,J,K}^{n-1}}{\Delta x}\right)-b_{i,J,K}-\frac{1-\alpha}{\alpha}a_{iJK}^{u}\left(u^{n-1}\right)u_{i,J,K}^{n-1}\right)}{\mbox{max}\left|\frac{a_{iJK}^{u}\left(u^{n-1}\right)}{\alpha}u_{i,J,K}^{*}\right|}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Idem pour les composantes 
+\begin_inset Formula $v$
+\end_inset
+
+ et 
+\begin_inset Formula $w$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Le résidu global peut se mettre sous la forme 
+\begin_inset Formula $R_{G}=\sqrt{R_{u}^{2}+R_{v}^{2}+R_{w}^{2}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Si le résidu global augmente trop ou reste constant, le coefficient 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ doit être diminué.
+ 
+\end_layout
+
+\begin_layout Subsection
+SIMPLER
+\end_layout
+
+\begin_layout Standard
+Remise à jour des coeff 
+\begin_inset Formula $a_{i,J,K}$
+\end_inset
+
+ pour le calcul de la correction de pression...
+\end_layout
+
+\begin_layout Subsection
+Darcy - Forchheimer
+\end_layout
+
+\begin_layout Standard
+La prise de moyenne des équations de Navier-Stokes permet d'obtenir l'équation
+ macroscopique de conservation de la quantité de mouvement :
+\begin_inset Formula 
+\[
+\left\langle \mathbf{v}\right\rangle =-\frac{\mathbf{K}_{D}}{\mu}\cdot\left(\nabla\left\langle P\right\rangle ^{f}-\rho\mathbf{g}\right)-\mathbf{F}\cdot\left\langle \mathbf{v}\right\rangle 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\mathbf{K}_{D}$
+\end_inset
+
+ et 
+\begin_inset Formula $\mathbf{F}$
+\end_inset
+
+ peuvent être déterminés par résolution des problèmes de fermeture associés.
+ 
+\end_layout
+
+\begin_layout Standard
+Dans certains cas, 
+\begin_inset Formula $\mathbf{F}$
+\end_inset
+
+ est supposé proportionnel à la vitesse et on peut alors mettre l'équation
+ précédente sous la forme :
+\begin_inset Formula 
+\[
+\left\langle \mathbf{v}\right\rangle =-\frac{\mathbf{K}_{D}}{\mu}\cdot\left(\nabla\left\langle P\right\rangle ^{f}-\rho\mathbf{g}\right)-\rho C_{f}\left\langle \left\Vert \mathbf{v}\right\Vert \right\rangle \left\langle \mathbf{v}\right\rangle 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+où encore, en réanrangeant et en négligeant la pesanteur :
+\begin_inset Formula 
+\[
+-\nabla\left\langle P\right\rangle ^{f}=\mu\mathbf{K}_{D}^{-1}\cdot\left\langle \mathbf{v}\right\rangle +\rho\left\langle \left\Vert \mathbf{v}\right\Vert \right\rangle \mathbf{K}_{F}^{-1}\cdot\left\langle \mathbf{v}\right\rangle 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\mathbf{K}_{F}=\mathbf{K}_{D}^{-1}C_{f}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dans le cas d'un gradient unidirectionnel et en supposant nulles les composantes
+ extra-diagonales des tenseurs :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+-\nabla\left\langle P\right\rangle ^{f}=\frac{\mu}{k_{1}}\left\langle v_{x}\right\rangle +\frac{\rho\left\langle \left\Vert \mathbf{v}\right\Vert \right\rangle }{k_{2}}\left\langle v_{x}\right\rangle 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+on suppose que : 
+\begin_inset Formula 
+\[
+\nabla\left\langle P\right\rangle ^{f}=\frac{\left\langle P_{out}\right\rangle _{S_{out}}^{f}-\left\langle P_{in}\right\rangle _{S_{in}}^{f}}{L}=\frac{1}{L}\left(\frac{1}{S_{out}^{f}}\int_{S_{out}^{f}}P_{out}dS-\frac{1}{S_{in}^{f}}\int_{S_{in}}P_{in}dS\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Avec 
+\begin_inset Formula $S_{in}^{f}=\epsilon_{in}S_{in}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Comme les pressions sur les faces externes sont imposées et constantes,
+ on a :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\nabla\left\langle P\right\rangle ^{f}=\frac{P_{out}-P_{in}}{L}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+où 
+\begin_inset Formula $P_{in}$
+\end_inset
+
+ et 
+\begin_inset Formula $P_{out}$
+\end_inset
+
+ sont les pressions macroscopiques imposées (est-ce que c'est vraiment justifié
+ ?).
+ La vitesse de sortie macroscopique moyenne peut être calculée par intégration
+ sur une des faces entrée et / ou sortie :
+\begin_inset Formula 
+\[
+v_{s}=\frac{1}{S}\int_{S^{f}}\mathbf{v}\cdot\mathbf{n_{s}}dS
+\]
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Lors de mesures expérimentales, on mesure le débit de sortie, d'où on déduit
+ la vitesse moyenne superficielle 
+\begin_inset Formula $v_{s}=\frac{Q}{S}$
+\end_inset
+
+.
+ Le gradient de pression macroscopique est connu.
+\end_layout
+
+\begin_layout Standard
+L'identification de 
+\begin_inset Formula $k_{1}$
+\end_inset
+
+ et 
+\begin_inset Formula $k_{2}$
+\end_inset
+
+ se fait en utilisant :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+-\frac{\Delta P}{L}=\frac{\mu}{k_{1}}v_{s}+\frac{\rho v_{s}^{2}}{k_{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+il est clair que cette formulation n'est pas la même que celle dérivée par
+ prise de moyenne.
+ 
+\end_layout
+
+\begin_layout Standard
+Pour comparer les résultats, on traite les résultats numériques de la même
+ manière : on calcule 
+\begin_inset Formula $v_{s}$
+\end_inset
+
+ en intégrant sur les surfaces d'entrée et/ou sortie.
+ On trace 
+\begin_inset Formula $v_{s}$
+\end_inset
+
+ en fonction de 
+\begin_inset Formula $-\frac{\Delta P}{Lv_{s}}$
+\end_inset
+
+ et on identifie les coefficients 
+\begin_inset Formula $\frac{\mu}{k_{1}}$
+\end_inset
+
+ et 
+\begin_inset Formula $\frac{\rho}{k_{2}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Relation débit adimensionnel / perméabilité 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K^{*}=\frac{Q^{*}}{S^{*}}\frac{\Delta L^{*}}{\epsilon\Delta P^{*}}=\frac{\left\langle v^{*}\right\rangle \Delta L^{*}}{\epsilon\Delta P^{*}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+où 
+\begin_inset Formula $^{*}$
+\end_inset
+
+ indique les grandeurs adimensionnelles.
+ Par ailleurs on a :
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K=\frac{\left\langle v\right\rangle \mu\Delta L}{\epsilon\Delta\left\langle P\right\rangle }
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+K=\frac{\left\langle v^{*}\right\rangle v_{ref}\mu\Delta L^{*}L_{ref}}{\epsilon\Delta\left\langle P^{*}\right\rangle \rho v_{ref}^{2}}=\frac{\left\langle v^{*}\right\rangle \Delta L^{*}}{\epsilon\Delta\left\langle P^{*}\right\rangle }\frac{\mu L_{ref}}{\rho v_{ref}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Soit : 
+\begin_inset Formula 
+\[
+K=K^{*}\frac{L_{ref}^{2}}{Re}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
