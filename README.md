@@ -16,6 +16,9 @@ Four outer-loop algorithms are provided:
 | `SIMPLERR`| SIMPLER plus a final pressure update per outer iteration|
 | `IDEAL`   | double pressure-update loop (N1 + N2 inner iterations)  |
 
+This code was used to compute the Darcy permeability and Forchheimer correction in the paper [Gas permeability of Ti6Al4V foams prepared via gelcasting, experiments and modelling](https://doi.org/10.1016/j.commatsci.2018.06.017)  
+An earlier version of this code was used to predict the Darcy permeability (solving Stokes equations only) in the paper [3D_Morphology_and_Permeability_of_Highly_Porous_Cellulosic_Fibrous_Material](https://www.researchgate.net/profile/Jerome-Lux-2/publication/225161822_3D_Morphology_and_Permeability_of_Highly_Porous_Cellulosic_Fibrous_Material/links/5b34f78d0f7e9b0df5d40afb/3D-Morphology-and-Permeability-of-Highly-Porous-Cellulosic-Fibrous-Material.pdf)
+
 ## Repository layout
 
 ```
@@ -204,10 +207,6 @@ pressure–velocity coupling (SIMPLE / SIMPLEC / SIMPLER / SIMPLER-R /
 IDEAL), convergence control, the derived quantities (Darcy permeability,
 RMR) and the full notation.
 
-> **Disclaimer:** the methods documentation in `doc/`, the in-code
-> docstrings and this README were written with the assistance of an AI
-> language model (Qwen 3.8 27B).
-
 ## Parallel execution
 
 Set the number of OpenMP threads before launching:
@@ -218,3 +217,6 @@ OMP_NUM_THREADS=8 ./NS3D sample.ini
 
 Use the number of physical cores (not hyper-threads) for best
 performance.
+
+## Disclaimer 
+The methods documentation in `doc/`, the in-code docstrings and this README were written with the assistance of an AI language model (Qwen 3.8 27B).
