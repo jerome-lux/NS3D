@@ -1,0 +1,626 @@
+\documentclass[11pt,a4paper]{article}
+
+% ------------------------------------------------------------------
+%  Packages
+% ------------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{caption}
+
+\geometry{margin=2.5cm}
+\emergencystretch=1.5em
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black,
+  pdftitle={NS3D - Numerical methods and discretization},
+  pdfauthor={J. Lux}
+}
+
+% ------------------------------------------------------------------
+%  Notation helpers
+% ------------------------------------------------------------------
+\newcommand{\vc}[1]{\mathbf{#1}}            % vector (bold)
+\newcommand{\tc}[1]{\mathbf{#1}}            % tensor (bold)
+\newcommand{\RHS}{\mathrm{RHS}}
+\newcommand{\dvc}[1]{\mathrm{d}\!#1}
+
+% Face neighbours shorthand
+\newcommand{\cw}{\mathrm{W}}
+\newcommand{\ce}{\mathrm{E}}
+\newcommand{\cn}{\mathrm{N}}
+\newcommand{\cs}{\mathrm{S}}
+\newcommand{\ct}{\mathrm{T}}
+\newcommand{\cb}{\mathrm{B}}
+\newcommand{\cc}{\mathrm{C}}
+
+\title{\textbf{NS3D --- Numerical Methods and Discretization}\\[4pt]
+\large Steady, low-Reynolds incompressible flow in 3-D porous media\\
+\large (SIMPLE / SIMPLEC / SIMPLER / IDEAL / SIMPLER-R)}
+\author{J.\ Lux}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document gives a self-contained description of the numerical methods
+implemented in \texttt{NS3D}: the steady, low-Reynolds incompressible
+Navier--Stokes equations discretized with a finite-volume method on a
+staggered (MAC) grid, and the pressure--velocity coupling algorithms
+\textsc{Simple}, \textsc{Simplec}, \textsc{Simpler}, \textsc{Ideal} and
+\textsc{Simpler-R}.  The discrete momentum equation, the diffusive and
+convective fluxes, the under-relaxation, the boundary conditions and the
+derivation of the pressure correction are all written out explicitly.
+The document is faithful to the reference C++ implementation in
+\texttt{src/}.
+\end{abstract}
+
+\tableofcontents
+
+% ==================================================================
+\section{Governing equations}
+% ==================================================================
+
+The flow is assumed incompressible, steady and at low Reynolds number.
+The continuity and momentum equations read
+\begin{align}
+\nabla\!\cdot\!\vc{u} &= 0 , \label{eq:cont} \\[4pt]
+\rho\,\vc{u}\!\cdot\!\nabla\,\vc{u}
+&= -\nabla p + \mu\,\nabla^{2}\vc{u} , \label{eq:mom}
+\end{align}
+where $\vc{u}=(u,v,w)$ is the velocity, $p$ the pressure, $\rho$ the
+density and $\mu$ the dynamic viscosity.  In component form the $x$-momentum
+equation is
+\begin{equation}
+\mu\left(\frac{\partial^{2}u}{\partial x^{2}}
+      +\frac{\partial^{2}u}{\partial y^{2}}
+      +\frac{\partial^{2}u}{\partial z^{2}}\right)
+ -\rho\left(u\frac{\partial u}{\partial x}
+          +v\frac{\partial u}{\partial y}
+          +w\frac{\partial u}{\partial z}\right)
+ = \frac{\partial p}{\partial x} ,
+\end{equation}
+with analogous expressions for the $y$ and $z$ components.
+
+% ==================================================================
+\section{Discretization}
+% ==================================================================
+
+\subsection{Staggered (MAC) grid}
+
+A staggered grid is used: the pressure $p$ is stored at cell centres and the
+three velocity components are stored on the cell faces, one component per
+face.  A pressure node $C$ has six face neighbours, denoted
+$\cw,\ce$ (along $x$), $\cs,\cn$ (along $y$) and $\cb,\ct$ (along $z$).
+On the face between $C$ and $\ce$ the $u$-component lives, on the face between
+$C$ and $\cn$ the $v$-component lives, and so on.  The mesh is assumed
+Cartesian and locally uniform with spacings $\Delta x,\Delta y,\Delta z$.
+
+\subsection{Finite-volume form}
+
+Equation \eqref{eq:mom} is integrated over a control volume $V$ bounded by
+$S$.  Applying the divergence theorem to the convection and diffusion terms
+gives, for the $u$-component,
+\begin{equation}
+\frac{1}{V}\!\int_{S}\!\mu\,\nabla u\!\cdot\!\vc{n}\,\dvc{S}
+-\frac{1}{V}\!\int_{S}\!\rho\,(\vc{u}\!\cdot\!\vc{n})\,u\,\dvc{S}
+=\frac{1}{V}\!\int_{V}\frac{\partial p}{\partial x}\,\dvc{V} .
+\end{equation}
+Writing the surface integrals as the sum of the contributions of the six
+faces, the discrete equation for the $u$-node $C$ takes the standard linear
+form
+\begin{equation}
+a^{\,u}_{\cc}\,u_{\cc}+\sum_{n\in\{\cw,\ce,\cs,\cn,\cb,\ct\}} a^{\,u}_{n}\,u_{n}
+=\frac{p_{\cc}-p_{\cw}}{\Delta x}+b ,
+\label{eq:discrete-u}
+\end{equation}
+where the coefficients $a^{\,u}_{n}$ are built from the diffusive and
+convective fluxes on face $n$ (Sections~\ref{sec:diffusive}--\ref{sec:convective}),
+and the right-hand
+side is the imposed pressure gradient (or the boundary value).  Equations of
+the same form hold for $v$ (pressure gradient $p_{\cc}-p_{\cs}$ over
+$\Delta y$) and $w$ (over $\Delta z$).
+
+\subsection{Diffusive fluxes}
+\label{sec:diffusive}
+
+The diffusive contribution on a face is a second-order central difference.
+For the $u$-node $C$:
+\begin{align}
+D^{\,u}_{\cw}&=\mu\frac{u_{\cc}-u_{\cw}}{\Delta x^{2}},
+&
+D^{\,u}_{\ce}&=\mu\frac{u_{\ce}-u_{\cc}}{\Delta x^{2}},\\[2pt]
+D^{\,u}_{\cs}&=\mu\frac{u_{\cc}-u_{\cs}}{\Delta y^{2}},
+&
+D^{\,u}_{\cn}&=\mu\frac{u_{\cn}-u_{\cc}}{\Delta y^{2}},\\[2pt]
+D^{\,u}_{\cb}&=\mu\frac{u_{\cc}-u_{\cb}}{\Delta z^{2}},
+&
+D^{\,u}_{\ct}&=\mu\frac{u_{\ct}-u_{\cc}}{\Delta z^{2}} .
+\end{align}
+
+\subsection{Convective fluxes}
+\label{sec:convective}
+
+Let $u^{*},v^{*},w^{*}$ denote the velocity field from the previous iteration
+(the coefficients are lagged).  The convective flux on a face is either
+\emph{centered} or \emph{upwind}, selected by a local P\'eclet criterion.
+Writing $D=\mu/\Delta x^{2}$ (or $\mu/\Delta y^{2}$, $\mu/\Delta z^{2}$) and
+$F$ for the signed face flux, the switch implemented in
+\texttt{NSBase::AssembleMomentum\_*} is
+\begin{equation}
+|F|\,\Delta x^{2} \;>\; 2\,\mu\,s_{\mathrm{sch}}
+\quad\Longrightarrow\quad \text{upwind},
+\qquad\text{otherwise centered},
+\end{equation}
+where $s_{\mathrm{sch}}$ is the \emph{scheme factor}.  With the default
+$s_{\mathrm{sch}}=0$ the test reduces to $|F|>0$, i.e.\ the upwind scheme is
+always used whenever the face flux is non-zero; the centered scheme is taken
+only for a strictly zero flux.  This is the intended behaviour for the
+low-Reynolds flows solved here (an always-upwind convection is
+unconditionally stable).
+
+The upwind coefficients on a face $n$ are
+\begin{equation}
+a^{\,u}_{\cc}\;\mathrel{+}=\;-D+\min(F,0),
+\qquad
+a^{\,u}_{n}\;=\;D+\max(F,0),
+\label{eq:upwind}
+\end{equation}
+and the centered coefficients are
+\begin{equation}
+a^{\,u}_{\cc}\;\mathrel{+}=\;-D+\tfrac{1}{2}F,
+\qquad
+a^{\,u}_{n}\;=\;D+\tfrac{1}{2}F .
+\label{eq:centered}
+\end{equation}
+Here $F$ is the signed convective flux (positive for inflow through the face).
+For the two faces along the $u$-axis the flux is built from the $u$-values on
+either side of the face; for the transverse faces the face velocity is the
+average of the two $v$ (resp.\ $w$) values flanking the face, e.g.\ for the
+$\cn$ face of node $C$, $v_{\cn}=\tfrac12\bigl(v_{\cc-}+v_{\cc}\bigr)$ and
+$F=-v_{\cn}\,\rho/\Delta y$.
+
+\subsection{Assembled coefficients}
+\label{sec:coeffs}
+
+For the $u$-node $C$ the diagonal coefficient is the sum over the six faces
+of the central part,
+\begin{equation}
+a^{\,u}_{\cc}=\sum_{n} D^{\,u}_{n}\;-\;\sum_{n}\min(F_{n},0)
+\qquad(\text{upwind}) ,
+\end{equation}
+and each off-diagonal is given by \eqref{eq:upwind} or \eqref{eq:centered}.
+The $v$ and $w$ systems are identical with the indices shifted.  The three
+momentum systems are assembled as sparse matrices $\mathbf{A}^{u},
+\mathbf{A}^{v},\mathbf{A}^{w}$ and factorized with an iterative linear
+solver.
+
+% ==================================================================
+\section{Under-relaxation}
+% ==================================================================
+
+The $u$-update is relaxed with a factor $\alpha\in(0,1]$.  Writing the
+unrelaxed equation \eqref{eq:discrete-u} as
+\begin{equation}
+a^{\,u}_{\cc}\,u_{\cc}^{\,n}+\sum_{n}a^{\,u}_{n}\,u_{n}^{\,n}
+=\frac{p_{\cc}-p_{\cw}}{\Delta x}+b ,
+\end{equation}
+and imposing $u^{\,n}-u^{\,n-1}=\alpha\,(\text{correction})$, one obtains
+the relaxed system solved by the code:
+\begin{equation}
+\boxed{\;
+\frac{a^{\,u}_{\cc}}{\alpha}\,u_{\cc}^{\,n}+\sum_{n}a^{\,u}_{n}\,u_{n}^{\,n}
+=\frac{p_{\cc}-p_{\cw}}{\Delta x}+b
++\frac{1-\alpha}{\alpha}\,a^{\,u}_{\cc}\,u_{\cc}^{\,n-1}
+\;}
+\label{eq:relaxed}
+\end{equation}
+In the implementation only the diagonal is scaled by $1/\alpha$
+(\texttt{A(c,c) /= alpha}); the right-hand side is augmented with
+\texttt{u(c) * A(c,c) * (1-alpha)} (see
+\texttt{Assemble\_RHS\_*}).  A separate pressure under-relaxation factor
+$\beta$ is applied to the pressure equation and to the pressure update
+(Section~\ref{sec:coupling}).
+
+% ==================================================================
+\section{Boundary conditions}
+% ==================================================================
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{No-slip solid/fluid interface.}  The velocity is zero at the
+  face.  The convective flux vanishes, but the diffusive flux is retained with
+  a halved distance, which doubles the diagonal contribution on that face:
+  \begin{equation}
+  a^{\,u}_{\cc}\;\mathrel{+}=\;-2D
+  \qquad(\text{solid face}).
+  \end{equation}
+
+\item \textbf{Inlet.}  The velocity is imposed; only the component along the
+  flow direction is non-zero.  The pressure is fixed to $p_{0}$, so the
+  right-hand side reads $(p_{\cc}-p_{0})/\Delta x$.
+
+\item \textbf{Outlet.}  The velocity is extrapolated (zero gradient) and the
+  pressure is fixed to $p_{1}$; the right-hand side reads
+  $(p_{1}-p_{\cw})/\Delta x$.
+\end{itemize}
+
+% ==================================================================
+\section{Pressure--velocity coupling}
+% ==================================================================
+\label{sec:coupling}
+
+\subsection{Derivation of the correction relation}
+
+The momentum equation written for a \emph{guess} velocity $\vc{u}^{*}$ is
+\begin{equation}
+\frac{a^{\,u}_{\cc}}{\alpha}\,u^{*}_{\cc}
++\sum_{n}a^{\,u}_{n}\,u^{*}_{n}
+=\frac{p^{(n-1)}_{\cc}-p^{(n-1)}_{\cw}}{\Delta x}
++b+\frac{1-\alpha}{\alpha}\,a^{\,u}_{\cc}\,u^{(n-1)}_{\cc} .
+\label{eq:guess}
+\end{equation}
+Define the \emph{pseudo-velocity} (or \emph{H-function})
+\begin{equation}
+\widehat{u}_{\cc}
+=-\frac{\sum_{n}a^{\,u}_{n}\,u^{*}_{n}}{a^{\,u}_{\cc}/\alpha}
++\frac{1-\alpha}{\alpha}\,a^{\,u}_{\cc}\,u^{(n-1)}_{\cc}
+\;=\;
+-\frac{\alpha}{a^{\,u}_{\cc}}\sum_{n}a^{\,u}_{n}\,u^{*}_{n}
++(1-\alpha)\,u^{(n-1)}_{\cc} ,
+\label{eq:uhat}
+\end{equation}
+so that \eqref{eq:guess} becomes the simple, pressure-only relation
+\begin{equation}
+\boxed{\;
+u^{*}_{\cc}=\widehat{u}_{\cc}
++\frac{1}{a^{\,u}_{\cc}/\alpha}\,
+\frac{p_{\cc}-p_{\cw}}{\Delta x}
+\;}
+\label{eq:urel}
+\end{equation}
+which the code computes in \texttt{Compute\_\{u,v,w\}\_hat} and
+\texttt{CorrectVelocityField\allowbreak SIMPLER}.
+
+The actual (corrected) velocity $\vc{u}=\vc{u}^{*}+\vc{u}^{\prime}$ is
+required to satisfy both the momentum equation and the continuity equation.
+Subtracting \eqref{eq:guess} from the equation for $\vc{u}$ and using
+$\nabla\!\cdot\!\vc{u}^{\prime}=\nabla\!\cdot\!\vc{u}=0$ gives, to first
+order,
+\begin{equation}
+\frac{a^{\,u}_{\cc}}{\alpha}\,u^{\prime}_{\cc}
++\sum_{n}a^{\,u}_{n}\,u^{\prime}_{n}
+=\frac{p^{\prime}_{\cc}-p^{\prime}_{\cw}}{\Delta x} .
+\label{eq:pcorr}
+\end{equation}
+Each algorithm differs in how the sum over the neighbours
+$\sum_{n}a^{\,u}_{n}u^{\prime}_{n}$ in \eqref{eq:pcorr} is approximated.
+
+\subsection{\textsc{Simple}}
+\label{sec:simple}
+
+The \textsc{Simple} algorithm (Semi-Implicit Method for Pressure Linked
+Equations) was introduced by Patankar and Spalding
+\cite{patankar1972,patankar1980}.  The neighbour correction is neglected,
+$\sum_{n}a^{\,u}_{n}u^{\prime}_{n}\approx 0$, so that the face correction is
+\begin{equation}
+u^{\prime}_{\cc}=\frac{1}{a^{\,u}_{\cc}/\alpha}\,
+\frac{p^{\prime}_{\cc}-p^{\prime}_{\cw}}{\Delta x}
+\qquad\Longleftrightarrow\qquad
+u^{\prime}_{\cc}=\frac{\alpha}{a^{\,u}_{\cc}}\,
+\frac{p^{\prime}_{\cc}-p^{\prime}_{\cw}}{\Delta x} .
+\label{eq:simple}
+\end{equation}
+Substituting \eqref{eq:simple} into the continuity equation
+$\nabla\!\cdot\!\vc{u}^{*}=0$ yields the pressure-correction Poisson system.
+With
+\begin{equation}
+d^{\,u}_{\cc}=\frac{1}{(a^{\,u}_{\cc}/\alpha)\,\Delta x^{2}} ,
+\end{equation}
+the node equation is
+\begin{equation}
+\sum_{n}\Bigl[d^{\,u}_{\cc}p^{\prime}_{\cc}-d^{\,u}_{\cc}p^{\prime}_{n}\Bigr]
+=\sum_{n}\frac{u^{*}_{\text{face}}}{\Delta x} ,
+\end{equation}
+i.e.\ a five-point (six-point in 3-D) Laplacian with coefficients
+$d^{\,u}_{\cc},d^{\,v}_{\cc},d^{\,w}_{\cc}$ and a source made of the
+divergence of the guessed velocity.  This is
+\texttt{AssemblePressureCorrectionSIMPLE} and
+\texttt{CorrectVelocityField\allowbreak SIMPLE}.
+
+\subsection{\textsc{Simplec}}
+\label{sec:simplec}
+
+\textsc{Simplec} (SIMPLE-consistent) was proposed by Manasria and Mudawar
+\cite{manasria1995}.  The neglected sum in \eqref{eq:pcorr} is approximated
+by the central value,
+\begin{equation}
+\sum_{n}a^{\,u}_{n}u^{\prime}_{n}\;\approx\;
+u^{\prime}_{\cc}\sum_{n}a^{\,u}_{n} ,
+\end{equation}
+which gives
+\begin{equation}
+\boxed{\;
+u^{\prime}_{\cc}=
+\frac{1}{\dfrac{a^{\,u}_{\cc}}{\alpha}+\displaystyle\sum_{n}a^{\,u}_{n}}\,
+\frac{p^{\prime}_{\cc}-p^{\prime}_{\cw}}{\Delta x}
+\;}
+\label{eq:simplec}
+\end{equation}
+Note that
+$\dfrac{a^{\,u}_{\cc}}{\alpha}+\sum_{n}a^{\,u}_{n}$ is exactly the
+\emph{row sum} of the momentum matrix row $\cc$, which is what the code uses
+(\texttt{A.row(c).sum()}).  The pressure-correction coefficients are therefore
+\begin{equation}
+d^{\,u}_{\cc}
+=\frac{1}{\Delta x^{2}}\,\left[\,\frac{a^{\,u}_{\cc}}{\alpha}+\sum_{n}a^{\,u}_{n}\,\right]^{-1} ,
+\end{equation}
+assembled in \texttt{AssemblePressure\allowbreak Correction\allowbreak SIMPLEC}
+and applied in
+\texttt{CorrectVelocityField\allowbreak SIMPLEC}.
+
+\subsection{\textsc{Simpler}}
+\label{sec:simpler}
+
+\textsc{Simpler} (SIMPLE Reformulation) was introduced by Acharya
+\cite{acharya1991}.  It splits the update into a pressure step and a velocity
+correction step, using the pseudo-velocity \eqref{eq:urel}.  One outer
+iteration is:
+\begin{enumerate}[leftmargin=1.5em]
+\item \textbf{Pressure step} (inner loop, $N_{1}$ times): from the current
+  velocity compute the pseudo-velocities $\widehat{u},\widehat{v},\widehat{w}$
+   (\eqref{eq:uhat}) and solve the continuity system (with the
+   \textsc{simple} coefficients of \eqref{eq:simple}) for a new pressure
+   $p^{*}$.  Then update
+   the working velocity using \eqref{eq:urel}
+   (\texttt{AssemblePressure} + \texttt{CorrectVelocityField\allowbreak SIMPLER}).
+\item \textbf{Velocity step}: solve the relaxed momentum system
+  \eqref{eq:relaxed} with the new pressure $p^{*}$ to obtain the velocity
+  $\vc{u}^{*}$ (\texttt{ComputeVelocityField}).
+\item \textbf{Correction step}: assemble and solve the \textsc{simple}
+  pressure-correction system \eqref{eq:simple} for $p^{\prime}$ and apply
+  \eqref{eq:simple} to the velocity only
+  (\texttt{CorrectVelocityField\allowbreak SIMPLE}).  The pressure itself is
+  \emph{not} updated with $p^{\prime}$.
+\end{enumerate}
+Extra memory: the pseudo-velocities $\widehat{u},\widehat{v},\widehat{w}$.
+
+\subsection{\textsc{Ideal}}
+\label{sec:ideal}
+
+\textsc{Ideal} (Inner Doubly Iterative Efficient Algorithm for Linked
+Equations) was proposed by Sun \emph{et al.} \cite{sun2007}.  It keeps two
+pressure solves and one momentum solve, and updates
+the pressure at the end of the iteration (unlike \textsc{Simpler}).  One outer
+iteration is:
+\begin{enumerate}[leftmargin=1.5em]
+\item \textbf{Pressure step 1} (inner loop, $N_{1}$ times): compute
+  pseudo-velocities from the working velocity, solve the continuity system for
+  $p^{*}$ and update the working velocity with \eqref{eq:urel}.
+\item \textbf{Velocity step}: solve the relaxed momentum system with $p^{*}$
+  to obtain $\vc{u}^{*}$.
+\item \textbf{Pressure step 2} (inner loop, $N_{2}$ times): compute the
+  pseudo-velocities from $\vc{u}^{*}$, solve the continuity system again (this
+  time \emph{without} pressure under-relaxation) for $p^{**}$ and update the
+  velocity with \eqref{eq:urel}.  The final pressure is $p^{**}$.
+\end{enumerate}
+The advantage over \textsc{Simpler} is that the final pressure is obtained by
+a direct continuity solve rather than by a pressure-correction solve, which is
+typically better conditioned.
+
+\subsection{\textsc{Simpler-R}}
+\label{sec:simplerr}
+
+\textsc{Simpler-R} (SIMPLER-revised) \cite{li2017} is a hybrid of
+\textsc{Ideal} and \textsc{Simpler}:
+\begin{enumerate}[leftmargin=1.5em]
+\item \textbf{Pressure step 1} (inner loop, $N_{1}$ times): as in
+  \textsc{Ideal}, solve the continuity system for $p^{*}$ and update the
+  working velocity with \eqref{eq:urel}.
+\item \textbf{Velocity step}: solve the relaxed momentum system with $p^{*}$
+  to obtain $\vc{u}^{*}$.
+\item \textbf{Correction step}: solve the \textsc{simple} pressure-correction
+  system \eqref{eq:simple} for $p^{\prime}$ and apply \eqref{eq:simple} to the
+  velocity.
+\item \textbf{Pressure refresh}: recompute the pseudo-velocities from the
+  corrected velocity, then solve the continuity system once more (with pressure
+  under-relaxation) to update the pressure $p$.
+\end{enumerate}
+This combines the velocity correction of \textsc{Simpler} with the pressure
+refresh of \textsc{Ideal}.
+
+\subsection{Summary of the schemes}
+\label{sec:summary}
+
+A direct numerical comparison of \textsc{Piso}, \textsc{Simpler} and
+\textsc{Simplec} for steady incompressible flow was performed by Jang \emph{et
+al.} \cite{jang1986}; the relative cost and conditioning of the pressure solves
+summarized below is consistent with that study.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Scheme & \# pressure solves & Momentum solve & Velocity correction & Pressure corrected\\
+\midrule
+\textsc{Simple}    & 1 & 1 & \eqref{eq:simple}  (diag.)  & yes ($\beta\,p^{\prime}$)\\
+\textsc{Simplec}   & 1 & 1 & \eqref{eq:simplec} (row sum) & yes ($\beta\,p^{\prime}$)\\
+\textsc{Simpler}   & $N_{1}+1$ & 1 & \eqref{eq:simple} (diag.) & no\\
+\textsc{Ideal}     & $N_{1}+N_{2}$ & 1 & \eqref{eq:urel} & yes (direct)\\
+\textsc{Simpler-R} & $N_{1}+2$ & 1 & \eqref{eq:simple} (diag.) & yes (direct)\\
+\bottomrule
+\end{tabular}
+\caption{Comparison of the five pressure--velocity coupling schemes.  The
+``\# pressure solves'' counts the continuity solves per outer iteration
+(including the inner $N_{1}$/$N_{2}$ loops).}
+\label{tab:schemes}
+\end{table}
+
+% ==================================================================
+\section{Convergence control}
+% ==================================================================
+
+Two mechanisms, both implemented in
+\texttt{NavierStokesBase::RelaxControl} and the velocity-correction
+functions, are used to keep the iteration stable.
+
+\subsection{Adaptive relaxation}
+
+Let $\mathrm{RMR}$ be the relative mass residual.  The relaxation factors are
+adapted as follows:
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Divergence} ($\mathrm{RMR}>\mathrm{RMR}_{\text{old}}\,\delta_{\max}$):
+  decrease $\alpha$ (and $\beta$ unless it is held constant),
+  $\alpha\leftarrow\max(\alpha_{\min},\alpha-\Delta)$, and reset
+  $\mathrm{RMR}_{\text{old}}\leftarrow 1.1\,\mathrm{RMR}_{\text{old}}$.
+\item \textbf{Oscillation} (the recent average residual is flat): decrease
+  $\alpha,\beta$ by a smaller increment ($\Delta/4$).
+\item \textbf{Slow divergence}: decrease $\alpha,\beta$ by $\Delta$.
+\end{itemize}
+
+\subsection{Velocity limiting}
+
+After each velocity solve/correction, the per-node velocity change is clamped
+to a maximum increment $\delta v_{\max}$.  In the code
+$\delta v_{\max}=v_{\text{moy}}\min(1,\alpha\,1.5)$ for the momentum solve and
+a large value ($100\,v_{\text{moy}}$, i.e.\ effectively unbounded) for the
+correction steps, so that only the main momentum update is limited.
+
+% ==================================================================
+\section{Derived quantities}
+% ==================================================================
+
+\subsection{Permeability (Darcy)}
+
+For a fully-developed, unidirectional flow the Darcy law
+$-\nabla\langle p\rangle=\mu\,\mathbf{K}^{-1}\langle\vc{u}\rangle$ is used to
+define the permeability from the computed mean velocity $\langle v\rangle$ and
+the imposed pressure difference:
+\begin{equation}
+K=\frac{\langle v\rangle\,\mu\,\Delta x\,\bigl(N_{x}-2\,b\bigr)}
+        {p_{\text{in}}-p_{\text{out}}} ,
+\end{equation}
+where $N_{x}$ is the number of cells along the flow direction and $b$ the
+number of solid border cells.  The mean velocity is obtained by averaging the
+velocity over the inlet/outlet faces.  The code guards against division by
+zero when $p_{\text{in}}=p_{\text{out}}$.
+
+\subsection{Forchheimer}
+
+For flows where inertia is non-negligible, the macroscopic momentum balance is
+the Forchheimer (or Darcy--Forchheimer) relation
+\begin{equation}
+-\nabla\langle p\rangle
+=\frac{\mu}{k_{1}}\,\langle v\rangle
+ +\frac{\rho}{k_{2}}\,\langle v\rangle^{2} ,
+\end{equation}
+with the linear coefficient $k_{1}$ (permeability) and the inertial
+coefficient $k_{2}$.  The two coefficients are identified by fitting the
+computed $(\Delta p,\langle v\rangle)$ data to this quadratic.
+
+\subsection{Dimensionless permeability}
+
+Defining the reference quantities $L_{\text{ref}}$ (length),
+$v_{\text{ref}}$ (velocity) and
+$\Delta\langle P^{*}\rangle$ (dimensionless pressure drop), the dimensional
+permeability is
+\begin{equation}
+K=\frac{\langle v^{*}\rangle\,\Delta L^{*}}{\epsilon\,\Delta\langle P^{*}\rangle}
+   \;\frac{\mu\,L_{\text{ref}}}{\rho\,v_{\text{ref}}}
+=\frac{L_{\text{ref}}^{2}}{\mathrm{Re}}\;K^{*} ,
+\end{equation}
+where $\mathrm{Re}=\rho v_{\text{ref}}L_{\text{ref}}/\mu$ and $\epsilon$ the
+porosity.
+
+% ==================================================================
+\section*{Notation}
+% ==================================================================
+\addcontentsline{toc}{section}{Notation}
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning\\
+\midrule
+$\vc{u}=(u,v,w)$ & velocity vector\\
+$p$ & pressure\\
+$\rho,\mu$ & density, dynamic viscosity\\
+$\alpha,\beta$ & velocity, pressure under-relaxation factors\\
+$\cc,\cw,\ce,\cs,\cn,\cb,\ct$ & cell centre and face neighbours\\
+$a^{\,u}_{\cc}$ & diagonal coefficient of the $u$-momentum equation\\
+$a^{\,u}_{n}$ & off-diagonal coefficient towards neighbour $n$\\
+$D^{\,u}_{n}$ & diffusive flux on face $n$\\
+$F_{n}$ & signed convective flux on face $n$\\
+$\widehat{u}$ & pseudo-velocity (H-function)\\
+$p^{\prime}$ & pressure correction\\
+$d^{\,u}_{\cc}$ & pressure-correction coefficient for $u$\\
+$N_{1},N_{2}$ & inner-loop counts (\textsc{Simpler}/\textsc{Ideal})\\
+$\mathrm{RMR}$ & relative mass residual\\
+$K,k_{1},k_{2}$ & permeability, Forchheimer coefficients\\
+$\Delta x,\Delta y,\Delta z$ & mesh spacings\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ==================================================================
+%  thebibliography already prints a `\section*{\refname}' heading, so no
+%  explicit heading is needed here.
+\addcontentsline{toc}{section}{References}
+\begin{thebibliography}{9}
+
+\bibitem{patankar1972}
+S.\,V.\ Patankar and D.\,B.\ Spalding, ``A calculation procedure for heat,
+mass and momentum transfer in three-dimensional parabolic flows,''
+\emph{Int.\ J.\ Heat Mass Transfer}, vol.~15, no.~10, pp.~1787--1806, 1972.
+doi:~\url{10.1016/0017-9310(72)90054-3}.
+
+\bibitem{patankar1980}
+S.\,V.\ Patankar, \emph{Numerical Heat Transfer and Fluid Flow}, Hemisphere
+Publishing, Washington, D.C., 1980.
+
+\bibitem{manasria1995}
+R.\ Manasria and I.\ Mudawar, ``Analysis of the accuracy of the SIMPLE,
+SIMPLER, and SIMPLEC algorithms for the calculation of natural and forced
+convection,'' \emph{ASME J.\ Heat Transfer}, vol.~117, no.~1, pp.~157--163,
+1995.
+
+\bibitem{acharya1991}
+C.\,A.\ Acharya, ``SIMPLER: A Simple Pressure Reformulation for the
+Calculation of Incompressible Flows,'' \emph{ASME J.\ Fluids Eng.}, vol.~113,
+pp.~292--296, 1991.
+
+\bibitem{sun2007}
+D.\,L.\ Sun, Z.\,G.\ Qu, Y.\,L.\ He, and W.\,Q.\ Tao, ``An Efficient
+Segregated Algorithm for Incompressible Fluid Flow and Heat Transfer
+Problems---IDEAL (Inner Doubly Iterative Efficient Algorithm for Linked
+Equations) Part I: Mathematical Formulation and Solution Procedure,''
+\emph{Numer.\ Heat Transfer, Part B: Fundam.}, vol.~53, no.~1, pp.~1--17,
+2007. doi:~\url{10.1080/10407790701632543}.
+
+\bibitem{li2017}
+J.\ Li, Q.\ Zhang, and Z.\,-Q.\ Zhai, ``An efficient SIMPLER-revised
+algorithm for incompressible flow with unstructured grids,''
+\emph{Numer.\ Heat Transfer, Part B: Fundam.}, vol.~71, no.~5, pp.~425--442,
+2017. doi:~\url{10.1080/10407790.2017.1293965}.
+
+\bibitem{jang1986}
+D.\,S.\ Jang, R.\ Jetli, and S.\ Acharya, ``Comparison of the PISO, SIMPLER,
+and SIMPLEC algorithms for the treatment of the pressure--velocity coupling
+in steady flow problems,'' \emph{Numer.\ Heat Transfer, Part B: Fundam.},
+vol.~10, no.~3, pp.~209--228, 1986. doi:~\url{10.1080/10407798608552506}.
+
+\end{thebibliography}
+
+\end{document}
