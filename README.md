@@ -40,7 +40,7 @@ NS3D/
 │   ├── test_spheres.ini    # config for the 128^3 single-algorithm test
 │   ├── compare_algorithms.ini  # base config for the 64^3 comparison
 │   └── compare_algorithms.sh   # runs all 4 algorithms, prints the table
-├── doc/                # design notes (LyX / PDF)
+├── doc/                # methods documentation (LaTeX source + PDF)
 └── build/              # build tree (git-ignored)
 ```
 
@@ -187,6 +187,26 @@ Converged (RMR < simpletol): 4 / 4
 All four algorithms agree on the permeability to < 0.1 %, which
 cross-validates the implementations; the differences are in the
 number of outer iterations and the wall-clock time.
+
+## Documentation
+
+A self-contained reference of the numerical methods is provided in
+`doc/`:
+
+| file | content |
+|------|---------|
+| `doc/NS3D_methods.tex` | LaTeX source |
+| `doc/NS3D_methods.pdf` | compiled document |
+
+It describes the governing equations, the finite-volume discretization
+on the staggered grid, under-relaxation, boundary conditions, the
+pressure–velocity coupling (SIMPLE / SIMPLEC / SIMPLER / SIMPLER-R /
+IDEAL), convergence control, the derived quantities (Darcy permeability,
+RMR) and the full notation.
+
+> **Disclaimer:** the methods documentation in `doc/`, the in-code
+> docstrings and this README were written with the assistance of an AI
+> language model (Qwen 3.8 27B).
 
 ## Parallel execution
 
