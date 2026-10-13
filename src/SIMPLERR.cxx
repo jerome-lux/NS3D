@@ -56,7 +56,7 @@
  *                  iteration.
  */
 SIMPLERRSOLVER::SIMPLERRSOLVER(double simpletol, int maxit, int N1) :
-                        simpletol(simpletol), maxit(maxit), N1(N1)
+                        N1(N1), maxit(maxit), simpletol(simpletol)
 {
     start = time(0);
 }
@@ -81,11 +81,11 @@ void SIMPLERRSOLVER::Solve(NavierStokesBase & NSBase)
     std::string outfilename;
     int nu = NSBase.nu, nv = NSBase.nv, nw = NSBase.nw, np = NSBase.np;
 
-    int it, sub1, N0 = 20, counter = 0;
+    int it, sub1; // 'N0' (=20) and 'counter' were declared here but never used
     std::string savefile;
     int savecounter = 0;
 
-    save_step = 20;
+    save_step = NSBase.save_step; // was hardcoded to 20; now taken from the input file
 
     printf("Initializing SIMPLER-R algorithm\n");
     NSBase.info_file << "Initializing SIMPLER-R algorithm" << std::endl;
@@ -113,7 +113,7 @@ void SIMPLERRSOLVER::Solve(NavierStokesBase & NSBase)
     w_temp.resize(nw);
     w_temp = Eigen::VectorXd::Zero(nw);
 
-    Eigen::VectorXd temp;
+    // Eigen::VectorXd temp; // removed: local 'temp' was never used (only temp.resize(0))
 
     pvector.resize(np);
     pvector = Eigen::VectorXd::Zero(np);
@@ -144,9 +144,8 @@ void SIMPLERRSOLVER::Solve(NavierStokesBase & NSBase)
 
     NSBase.AssembleAllMomentum(uA, vA, wA, u, v, w);
     NSBase.ComputeVelocityField(uA, vA, wA, u, v, w, pvector, false, 0);
-    NSBase.ComputePermeability(Q, v_moy, K, u, pvector);
-
-    temp.resize(0);
+    // NSBase.ComputePermeability(Q, v_moy, K, u, pvector); // removed: redundant (recomputed on the next line)
+    // temp.resize(0); // removed: 'temp' was unused
     NSBase.ComputePermeability(Q, v_moy, K, u, pvector);
     printf("Initial Permeability K (m²): %g\n", K);
     NSBase.info_file << "Initial Permeability K (m²): " << K << std::endl;
@@ -201,13 +200,10 @@ void SIMPLERRSOLVER::Solve(NavierStokesBase & NSBase)
         {
             if (NSBase.RMR < NSBase.old_RMR)
             {
-                counter += 1;
+                // counter += 1; // removed: 'counter' was never read
                 NSBase.old_RMR = NSBase.RMR;
             }
-            else
-            {
-                counter = 0;
-            }
+            // else { counter = 0; } // removed: 'counter' was never read
         }
         else
         {

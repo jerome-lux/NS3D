@@ -59,12 +59,12 @@ NavierStokesBase::NavierStokesBase(
             double alpha=1, double beta=1,
             double p0=1e5, double gradp=1e2,
             double mu=1e-3, double rho=1e3,
-            int porevalue=0, int gradient_direction=1,double deltaRMR=1e-4, int border=0) :
+            int porevalue=0, int gradient_direction=1,double deltaRMR=1e-4, int save_step=20, int border=0) :
             imagefilename(imagefilename),pfieldfilename(pfieldfilename),vxfilename(vxfilename),vyfilename(vyfilename),vzfilename(vzfilename),
             dx(dx),dy(dy),dz(dz),
             vsolvertol(vsolvertol),psolvertol(psolvertol),pcsolvertol(pcsolvertol),
             maxitsolver(maxitsolver),alpha(alpha),beta(beta),p0(p0),gradp(gradp),
-            mu(mu),rho(rho),porevalue(porevalue),gradient_direction(gradient_direction),deltaRMR(deltaRMR),border(border)
+            mu(mu),rho(rho),porevalue(porevalue),gradient_direction(gradient_direction),deltaRMR(deltaRMR),save_step(save_step),border(border)
 {
 
     info_file<<"Low Reynolds Steady Navier-Stokes simulation  "<<std::endl;
@@ -82,6 +82,7 @@ NavierStokesBase::NavierStokesBase(
     info_file<<"Pore voxel value = "<<porevalue<<std::endl;
     info_file<<"Direction of the pressure gradient: "<< gradient_direction<<" (1:x, 2:y, 3:z)"<<std::endl;
     info_file<<"Pressure gradient (Pa/m): "<< gradp <<std::endl;
+    info_file<<"Save step (snapshot every N outer iterations): "<< save_step <<std::endl;
     info_file<<"Border (x2): "<< border <<std::endl;
     printf("Low Reynolds Steady Navier-Stokes simulation\n");
     printf("Developed by J. Lux 2016, jerome.lux@univ-lr.fr\n");
@@ -98,6 +99,7 @@ NavierStokesBase::NavierStokesBase(
     printf("Pore voxel value = %d\n", porevalue);
     printf("Direction of the pressure gradient: %d (1:x, 2:y, 3:z)\n", gradient_direction);
     printf("Pressure gradient (Pa/m): %g\n", gradp);
+    printf("Save step (snapshot every N outer iterations): %d\n", save_step);
     printf("Border (x2): %d\n", border);
 
     /* Retrieve the binary image, create the index arrays and initialize the pressure field */
@@ -158,6 +160,14 @@ NavierStokesBase::NavierStokesBase(
         p1 = 0;
     }
 
+    // INTENTIONAL: the convection terms are discretized with the UPWIND
+    // scheme whenever there is flow. This is achieved by setting
+    // schemefactor = 0, which degenerates the Peclet-number switch test
+    //     |F|*dx^2 > 2*mu*schemefactor
+    // into   F != 0,
+    // so the centered branch is never taken. An always-upwind convection
+    // is unconditionally stable (no spurious oscillations) for the
+    // low-Reynolds flows solved here, which is the desired behaviour.
     schemefactor = 0;
     min_alpha = 0.001;
     min_beta = 0.001;
@@ -295,19 +305,19 @@ bool NavierStokesBase::CheckConvergence(double & res, double & tol){
 
 
     if (res<tol){
-        printf("SIMPLER-R has converged ! RMR=: %g\n", res);
+        printf("Converged ! RMR=: %g\n", res);
         return true;
     }
 
     if (nz>0){
         if((usolver.iterations()==0 && vsolver.iterations()==0 && wsolver.iterations()==0) && psolver.iterations()==0){
-            printf("SIMPLER-R has converged !\n");
+            printf("Converged !\n");
             printf("Velocity and pressure field stabilized\n");
             return true;
         }
     }else{
         if((usolver.iterations()==0 && vsolver.iterations()==0) && psolver.iterations()==0){
-            printf("SIMPLER-R has converged !\n");
+            printf("Converged !\n");
             printf("Velocity and pressure field stabilized\n");
             return true;
         }
@@ -433,7 +443,7 @@ void NavierStokesBase::FieldsToImage(std::string & filename, Eigen::VectorXd &pv
                         avg_vfield(i,j,k)=(v(vindex(i,j+1,k))+v(vindex(i,j,k)))*0.50;
                     }else if (vindex(i,j+1,k)>-1){
                         avg_vfield(i,j,k)=(v(vindex(i,j+1,k)))*0.50;
-                    }else if (uindex(i,j,k)>-1){
+                    }else if (vindex(i,j,k)>-1){
                         avg_vfield(i,j,k)=(v(vindex(i,j,k)))*0.50;
                     }
                 }else if (vindex(i,j,k)>-1){
@@ -445,7 +455,7 @@ void NavierStokesBase::FieldsToImage(std::string & filename, Eigen::VectorXd &pv
                         avg_wfield(i,j,k)=(w(windex(i,j,k+1))+w(windex(i,j,k)))*0.50;
                     }else if (windex(i,j,k+1)>-1){
                         avg_wfield(i,j,k)=(w(windex(i,j,k+1)))*0.50;
-                    }else if (uindex(i,j,k)>-1){
+                    }else if (windex(i,j,k)>-1){
                         avg_wfield(i,j,k)=(w(windex(i,j,k)))*0.50;
                     }
                 }else if (windex(i,j,k)>-1){
@@ -1927,8 +1937,8 @@ void NavierStokesBase::ComputePermeability(double &Q, double &v_moy, double &K, 
             }
         }
 
-        p_inlet /= np_in;
-        p_outlet /= np_out;
+        if (np_in > 0) p_inlet /= np_in;
+        if (np_out > 0) p_outlet /= np_out;
 
     }
 
@@ -1937,7 +1947,12 @@ void NavierStokesBase::ComputePermeability(double &Q, double &v_moy, double &K, 
     Q=v_moy*sx;
     p/=(uindex.shape()(1)*uindex.shape()(2));
     v_moy/=(uindex.shape()(1)*uindex.shape()(2));
-    K=v_moy*mu*dx*(pindex.shape()(0)-2*border)/(p_inlet-p_outlet);
+    if (std::abs(p_inlet-p_outlet) > 0.0){
+        K=v_moy*mu*dx*(pindex.shape()(0)-2*border)/(p_inlet-p_outlet);
+    }else{
+        K=0.0;
+        printf("WARNING: zero pressure difference (p_inlet = p_outlet), K set to 0\n");
+    }
 }
 
 void NavierStokesBase::ComputeDiv(double & MaxDeltaV, double & normdiv, double & velocityNorm, double & maxdiv,

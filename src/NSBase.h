@@ -139,6 +139,7 @@ public:
      * @param porevalue        voxel value that represents the fluid (0 or 1).
      * @param gradient_direction 1 (x), 2 (y) or 3 (z).
      * @param deltaRMR         oscillation detection threshold.
+     * @param save_step        save a field snapshot every N outer iterations.
      * @param border           solid border thickness added along x (voxels).
      */
     NavierStokesBase(
@@ -150,9 +151,10 @@ public:
             double alpha, double beta,
             double p0, double gradp,
             double mu, double rho,
-            int porevalue, int gradient_direction,
-            double deltaRMR,
-            int border);
+             int porevalue, int gradient_direction,
+             double deltaRMR,
+             int save_step,
+             int border);
 
     /**
      * @brief Assemble the three momentum matrices and factor the systems.

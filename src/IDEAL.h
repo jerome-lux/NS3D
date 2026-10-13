@@ -109,20 +109,11 @@ public:
      */
     void Solve(NavierStokesBase & NSBase);
 
-    /**
-     * @brief Check the convergence criterion (RMR < simpletol).
-     *
-     * @param res current relative mass residual.
-     * @return true if converged.
-     */
-    bool CheckConvergence(double & res);
-
-    /**
-     * @brief Placeholder for image rotation (not used by this driver).
-     *
-     * @param direction rotation direction.
-     */
-    void Rotation(int direction);
+    // NOTE: the following two methods were declared here but are never defined
+    // nor called (the real ones are NavierStokesBase::CheckConvergence and
+    // NavierStokesBase::Rotation), so they have been commented out:
+    //   bool CheckConvergence(double & res);
+    //   void Rotation(int direction);
 };
 
 #endif

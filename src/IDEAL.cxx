@@ -56,7 +56,7 @@
  * @param N2        number of inner final iterations (default 2).
  */
 IDEALSOLVER::IDEALSOLVER(double simpletol, int maxit, int N1 = 2, int N2 = 2) :
-                        simpletol(simpletol), maxit(maxit), N1(N1), N2(N2)
+                        N1(N1), N2(N2), maxit(maxit), simpletol(simpletol)
 {
     start = time(0);
 }
@@ -80,9 +80,9 @@ void IDEALSOLVER::Solve(NavierStokesBase & NSBase)
     std::string outfilename;
     int nu = NSBase.nu, nv = NSBase.nv, nw = NSBase.nw, np = NSBase.np;
 
-    int it, sub1, N0 = 20, counter = 0;
+    int it, sub1; // 'N0' (=20) and 'counter' were declared here but never used
     std::string savefile;
-    save_step = 20;
+    save_step = NSBase.save_step; // was hardcoded to 20; now taken from the input file
     int savecounter = 0;
 
     printf("Initializing IDEAL algorithm\n");
@@ -111,7 +111,7 @@ void IDEALSOLVER::Solve(NavierStokesBase & NSBase)
     w_temp.resize(nw);
     w_temp = Eigen::VectorXd::Zero(nw);
 
-    Eigen::VectorXd temp;
+    // Eigen::VectorXd temp; // removed: local 'temp' was never used (only temp.resize(0))
 
     pvector.resize(np);
     pvector = Eigen::VectorXd::Zero(np);
@@ -132,7 +132,7 @@ void IDEALSOLVER::Solve(NavierStokesBase & NSBase)
     NSBase.vsolver.setMaxIterations(NSBase.maxitsolver);
     NSBase.wsolver.setMaxIterations(NSBase.maxitsolver);
 
-    NSBase.info_file << "Max number of SIMPLE-R iterations: " << maxit << std::endl;
+    NSBase.info_file << "Max number of IDEAL iterations: " << maxit << std::endl;
     printf("Stopping criterion for relative residual: %g\n", simpletol);
 
     NSBase.log_file << "iteration, Q (m³/s), <u_out> (m/s), Max Rel Mass Res., K (m²), gradP (Pa/m), ||Div_u||, Lref*(max DIV)/<u_out>, <||u||>, max DIV, it_u,it_v,it_w,it_pc" << std::endl;
@@ -142,9 +142,8 @@ void IDEALSOLVER::Solve(NavierStokesBase & NSBase)
 
     NSBase.AssembleAllMomentum(uA, vA, wA, u, v, w);
     NSBase.ComputeVelocityField(uA, vA, wA, u, v, w, pvector, false, 0);
-    NSBase.ComputePermeability(Q, v_moy, K, u, pvector);
-
-    temp.resize(0);
+    // NSBase.ComputePermeability(Q, v_moy, K, u, pvector); // removed: redundant (recomputed on the next line)
+    // temp.resize(0); // removed: 'temp' was unused
     NSBase.ComputePermeability(Q, v_moy, K, u, pvector);
     printf("Initial Permeability K (m²): %g\n", K);
     NSBase.info_file << "Initial Permeability K (m²): " << K << std::endl;
@@ -199,13 +198,10 @@ void IDEALSOLVER::Solve(NavierStokesBase & NSBase)
         {
             if (NSBase.RMR < NSBase.old_RMR)
             {
-                counter += 1;
+                // counter += 1; // removed: 'counter' was never read
                 NSBase.old_RMR = NSBase.RMR;
             }
-            else
-            {
-                counter = 0;
-            }
+            // else { counter = 0; } // removed: 'counter' was never read
         }
         else
         {

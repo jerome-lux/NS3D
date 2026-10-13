@@ -54,7 +54,7 @@
  * @param maxit     maximum number of outer iterations.
  */
 SIMPLECSOLVER::SIMPLECSOLVER(double simpletol, int maxit) :
-                        simpletol(simpletol), maxit(maxit)
+                        maxit(maxit), simpletol(simpletol)
 {
     start = time(0);
 }
@@ -72,16 +72,16 @@ SIMPLECSOLVER::SIMPLECSOLVER(double simpletol, int maxit) :
  */
 void SIMPLECSOLVER::Solve(NavierStokesBase & NSBase)
 {
-    bool convergence, relax = true;
+    bool convergence; // 'relax' was declared here but never used in SIMPLEC (only AssemblePressure uses it, which SIMPLEC does not call)
     double Q = 0, v_moy = 0, K = 0;
     double normdiv, reldiv, velocityNorm, maxdiv, MaxDeltaV;
     std::string outfilename;
     int nu = NSBase.nu, nv = NSBase.nv, nw = NSBase.nw, np = NSBase.np;
 
-    int it, N0 = 20, counter = 0;
+    int it; // 'N0' (=20) and 'counter' were declared here but never used
     std::string savefile;
 
-    save_step = 20;
+    save_step = NSBase.save_step; // was hardcoded to 20; now taken from the input file
     int savecounter = 0;
 
     printf("Initializing SIMPLEC algorithm\n");
@@ -95,7 +95,7 @@ void SIMPLECSOLVER::Solve(NavierStokesBase & NSBase)
     w.resize(nw);
     w = Eigen::VectorXd::Zero(nw);
 
-    Eigen::VectorXd temp;
+    // Eigen::VectorXd temp; // removed: local 'temp' was never used (only temp.resize(0))
 
     pvector.resize(np);
     pvector = Eigen::VectorXd::Zero(np);
@@ -127,9 +127,8 @@ void SIMPLECSOLVER::Solve(NavierStokesBase & NSBase)
 
     NSBase.AssembleAllMomentum(uA, vA, wA, u, v, w);
     NSBase.ComputeVelocityField(uA, vA, wA, u, v, w, pvector, false, 0);
-    NSBase.ComputePermeability(Q, v_moy, K, u, pvector);
-
-    temp.resize(0);
+    // NSBase.ComputePermeability(Q, v_moy, K, u, pvector); // removed: redundant (recomputed on the next line)
+    // temp.resize(0); // removed: 'temp' was unused
     NSBase.ComputePermeability(Q, v_moy, K, u, pvector);
     printf("Initial Permeability K (m²): %g\n", K);
     NSBase.info_file << "Initial Permeability K (m²): " << K << std::endl;
@@ -161,13 +160,10 @@ void SIMPLECSOLVER::Solve(NavierStokesBase & NSBase)
         {
             if (NSBase.RMR < NSBase.old_RMR)
             {
-                counter += 1;
+                // counter += 1; // removed: 'counter' was never read
                 NSBase.old_RMR = NSBase.RMR;
             }
-            else
-            {
-                counter = 0;
-            }
+            // else { counter = 0; } // removed: 'counter' was never read
         }
         else
         {

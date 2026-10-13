@@ -1,0 +1,266 @@
+Size 128,128,128
+Porosity: 0.754428863525391
+Nodes for the pressure field: 1582152
+Nodes for the u velocity field: 1517536
+Nodes for the v velocity field: 1484768
+Nodes for the w velocity field: 1484768
+Delta RMR min : 0.0001
+Initializing SIMPLEC algorithm
+p0, p1 (Pa)= 100000,99999.9744
+Pressure gradient (Pa/m)= 99.9999999748979
+inlet/outlet area (m²)= 6.5536e-08
+Max number of SIMPLE iterations: 30
+Solving for component u in 11 iterations (status 0)
+Solving for component v in 500 iterations (status 0)
+Solving for component w in 500 iterations (status 0)
+Initial Permeability K (m²): 9.14196330389082e-13
+Iteration 0  ------------
+Permeability K (m²): 9.14196330389082e-13
+Solving for pressure correction : 164 iterations (status 0)
+Correction de pression maximale et minimale: 0.00045230935455062, -0.00103747280084213
+Norme de la correction de pression : 0.392994949411902
+Iteration 1  ------------
+Solving for component u in 11 iterations (status 0)
+Solving for component v in 11 iterations (status 0)
+Solving for component w in 11 iterations (status 0)
+Permeability K (m²): 2.05724592594614e-12
+Solving for pressure correction : 136 iterations (status 0)
+Correction de pression maximale et minimale: 0.000203909654060437, -0.00069167727678218
+Norme de la correction de pression : 0.362133748926111
+Iteration 2  ------------
+Solving for component u in 10 iterations (status 0)
+Solving for component v in 10 iterations (status 0)
+Solving for component w in 10 iterations (status 0)
+Permeability K (m²): 2.20801723837687e-12
+Solving for pressure correction : 204 iterations (status 0)
+Correction de pression maximale et minimale: 0.000336785227444517, -0.000134266245844518
+Norme de la correction de pression : 0.112794024622702
+Iteration 3  ------------
+Solving for component u in 10 iterations (status 0)
+Solving for component v in 10 iterations (status 0)
+Solving for component w in 10 iterations (status 0)
+Permeability K (m²): 3.21067474806854e-12
+Solving for pressure correction : 133 iterations (status 0)
+Correction de pression maximale et minimale: 9.18795955201364e-05, -9.75657904243903e-05
+Norme de la correction de pression : 0.0353939430319507
+Iteration 4  ------------
+Solving for component u in 9 iterations (status 0)
+Solving for component v in 9 iterations (status 0)
+Solving for component w in 9 iterations (status 0)
+Permeability K (m²): 3.85465644236556e-12
+Solving for pressure correction : 100 iterations (status 0)
+Correction de pression maximale et minimale: 0.000130155654687883, -0.000110873130054541
+Norme de la correction de pression : 0.0411935674423195
+Iteration 5  ------------
+Solving for component u in 9 iterations (status 0)
+Solving for component v in 9 iterations (status 0)
+Solving for component w in 9 iterations (status 0)
+Permeability K (m²): 4.43512459550629e-12
+Solving for pressure correction : 117 iterations (status 0)
+Correction de pression maximale et minimale: 4.67545287303252e-05, -9.65586403932537e-05
+Norme de la correction de pression : 0.0375051517882403
+Iteration 6  ------------
+Solving for component u in 9 iterations (status 0)
+Solving for component v in 9 iterations (status 0)
+Solving for component w in 9 iterations (status 0)
+Permeability K (m²): 4.8997393421845e-12
+Solving for pressure correction : 71 iterations (status 0)
+Correction de pression maximale et minimale: 4.17565331979877e-05, -7.69106842178338e-05
+Norme de la correction de pression : 0.0329530061804106
+Iteration 7  ------------
+Solving for component u in 8 iterations (status 0)
+Solving for component v in 9 iterations (status 0)
+Solving for component w in 9 iterations (status 0)
+Permeability K (m²): 5.30957249367818e-12
+Solving for pressure correction : 86 iterations (status 0)
+Correction de pression maximale et minimale: 4.16458701246074e-05, -7.63108421370643e-05
+Norme de la correction de pression : 0.0257587779228906
+Iteration 8  ------------
+Solving for component u in 8 iterations (status 0)
+Solving for component v in 9 iterations (status 0)
+Solving for component w in 9 iterations (status 0)
+Permeability K (m²): 5.66189390509613e-12
+Solving for pressure correction : 97 iterations (status 0)
+Correction de pression maximale et minimale: 5.45579693027062e-05, -5.19094544943116e-05
+Norme de la correction de pression : 0.0158699954069691
+Iteration 9  ------------
+Solving for component u in 8 iterations (status 0)
+Solving for component v in 9 iterations (status 0)
+Solving for component w in 9 iterations (status 0)
+Permeability K (m²): 5.98598416104598e-12
+Solving for pressure correction : 47 iterations (status 0)
+Correction de pression maximale et minimale: 5.42500713639147e-05, -5.20714516681003e-05
+Norme de la correction de pression : 0.0146123418931379
+Iteration 10  ------------
+Solving for component u in 7 iterations (status 0)
+Solving for component v in 8 iterations (status 0)
+Solving for component w in 8 iterations (status 0)
+Permeability K (m²): 6.27165587956147e-12
+Solving for pressure correction : 95 iterations (status 0)
+Correction de pression maximale et minimale: 3.61035067662415e-05, -5.43724614865164e-05
+Norme de la correction de pression : 0.0155962509308212
+Iteration 11  ------------
+Solving for component u in 7 iterations (status 0)
+Solving for component v in 8 iterations (status 0)
+Solving for component w in 8 iterations (status 0)
+Permeability K (m²): 6.52369429307681e-12
+Solving for pressure correction : 58 iterations (status 0)
+Correction de pression maximale et minimale: 3.37833839404686e-05, -4.76037247480518e-05
+Norme de la correction de pression : 0.0165676059733129
+Iteration 12  ------------
+Solving for component u in 7 iterations (status 0)
+Solving for component v in 8 iterations (status 0)
+Solving for component w in 8 iterations (status 0)
+Permeability K (m²): 6.74675601962301e-12
+Solving for pressure correction : 57 iterations (status 0)
+Correction de pression maximale et minimale: 3.28965653943607e-05, -4.36214172460646e-05
+Norme de la correction de pression : 0.0146557868792985
+Iteration 13  ------------
+Solving for component u in 7 iterations (status 0)
+Solving for component v in 8 iterations (status 0)
+Solving for component w in 8 iterations (status 0)
+Permeability K (m²): 6.94716399270561e-12
+Solving for pressure correction : 122 iterations (status 0)
+Correction de pression maximale et minimale: 4.23283047773237e-05, -3.96082178692466e-05
+Norme de la correction de pression : 0.00779901747202249
+Iteration 14  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 8 iterations (status 0)
+Solving for component w in 8 iterations (status 0)
+Permeability K (m²): 7.13517745935434e-12
+Solving for pressure correction : 73 iterations (status 0)
+Correction de pression maximale et minimale: 3.24366451441632e-05, -3.80297908815916e-05
+Norme de la correction de pression : 0.00780569684854867
+Iteration 15  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 8 iterations (status 0)
+Solving for component w in 8 iterations (status 0)
+Permeability K (m²): 7.30390958390781e-12
+Solving for pressure correction : 109 iterations (status 0)
+Correction de pression maximale et minimale: 2.71155540491399e-05, -4.29543942672049e-05
+Norme de la correction de pression : 0.00844466213253976
+Iteration 16  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 7.45680575799808e-12
+Solving for pressure correction : 79 iterations (status 0)
+Correction de pression maximale et minimale: 2.60011254424424e-05, -3.50140166636614e-05
+Norme de la correction de pression : 0.00889672356999938
+Iteration 17  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 7.59422116314588e-12
+Solving for pressure correction : 70 iterations (status 0)
+Correction de pression maximale et minimale: 2.49861829102335e-05, -3.42347752515663e-05
+Norme de la correction de pression : 0.00773640536287423
+Iteration 18  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 7.72060058917123e-12
+Solving for pressure correction : 105 iterations (status 0)
+Correction de pression maximale et minimale: 2.78282765817686e-05, -2.94937844102977e-05
+Norme de la correction de pression : 0.00415084427722743
+Iteration 19  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 7.83848922760915e-12
+Solving for pressure correction : 68 iterations (status 0)
+Correction de pression maximale et minimale: 2.5513612181716e-05, -3.07093884662693e-05
+Norme de la correction de pression : 0.00405177621469527
+Iteration 20  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 7.94650665712309e-12
+Solving for pressure correction : 71 iterations (status 0)
+Correction de pression maximale et minimale: 2.05900325661392e-05, -2.76310857800007e-05
+Norme de la correction de pression : 0.00369011788807096
+Writing Vx-1-spheres_128-SAVE-1.vti
+Writing Vy-1-spheres_128-SAVE-1.vti
+Writing Vz-1-spheres_128-SAVE-1.vti
+Writing V-1-spheres_128-SAVE-1.vti
+Writing P-1-spheres_128-SAVE-1.vti
+Iteration 21  ------------
+Solving for component u in 6 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 8.04683229361866e-12
+Solving for pressure correction : 86 iterations (status 0)
+Correction de pression maximale et minimale: 1.96474691125464e-05, -2.97299133053586e-05
+Norme de la correction de pression : 0.00465754668382587
+Iteration 22  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 8.13764003634755e-12
+Solving for pressure correction : 79 iterations (status 0)
+Correction de pression maximale et minimale: 1.835613119852e-05, -2.44981205195097e-05
+Norme de la correction de pression : 0.00448005105504388
+Iteration 23  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 8.22273238557278e-12
+Solving for pressure correction : 58 iterations (status 0)
+Correction de pression maximale et minimale: 1.758031857179e-05, -2.46246432562303e-05
+Norme de la correction de pression : 0.00450851020869604
+Iteration 24  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 8.29984373916951e-12
+Solving for pressure correction : 83 iterations (status 0)
+Correction de pression maximale et minimale: 1.74471897032228e-05, -2.21189626602828e-05
+Norme de la correction de pression : 0.00317786328250684
+Iteration 25  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 7 iterations (status 0)
+Solving for component w in 7 iterations (status 0)
+Permeability K (m²): 8.37285900650966e-12
+Solving for pressure correction : 87 iterations (status 0)
+Correction de pression maximale et minimale: 1.56788061847994e-05, -2.16657010431832e-05
+Norme de la correction de pression : 0.00281230243839819
+Iteration 26  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 6 iterations (status 0)
+Solving for component w in 6 iterations (status 0)
+Permeability K (m²): 8.44057917608797e-12
+Solving for pressure correction : 78 iterations (status 0)
+Correction de pression maximale et minimale: 1.51607773419399e-05, -2.01062276757596e-05
+Norme de la correction de pression : 0.00222316655110675
+Iteration 27  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 6 iterations (status 0)
+Solving for component w in 6 iterations (status 0)
+Permeability K (m²): 8.50464999994673e-12
+Solving for pressure correction : 101 iterations (status 0)
+Correction de pression maximale et minimale: 1.37379165286634e-05, -1.96774478294155e-05
+Norme de la correction de pression : 0.00445207255166317
+Iteration 28  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 6 iterations (status 0)
+Solving for component w in 6 iterations (status 0)
+Permeability K (m²): 8.56207117174371e-12
+Solving for pressure correction : 80 iterations (status 0)
+Correction de pression maximale et minimale: 1.30621201049957e-05, -1.87659602743154e-05
+Norme de la correction de pression : 0.00384139773474797
+Iteration 29  ------------
+Solving for component u in 5 iterations (status 0)
+Solving for component v in 6 iterations (status 0)
+Solving for component w in 6 iterations (status 0)
+Permeability K (m²): 8.6158200758573e-12
+Solving for pressure correction : 104 iterations (status 0)
+Correction de pression maximale et minimale: 1.23132617991497e-05, -1.71179064256881e-05
+Norme de la correction de pression : 0.00223122747638327
+Norm of the velocity field divergence: 0.000472211421262218
+Relative divergence of the velocity field: 3.15673714075272
+Writing Vx-1-spheres_128.vti
+Writing Vy-1-spheres_128.vti
+Writing Vz-1-spheres_128.vti
+Writing V-1-spheres_128.vti
+Writing P-1-spheres_128.vti
+SIMPLEC terminated in 30 iteration and 104 seconds

@@ -189,6 +189,7 @@ struct InputParams
     int maxitSIMPLE = 500;
     int N1 = 2;
     int N2 = 2;
+    int save_step = 20;   // save a field snapshot every N outer iterations
 
     // geometry
     int porevalue = 0;
@@ -235,6 +236,7 @@ static void PrintUsage()
     printf("  maxitSIMPLE    max outer iterations\n");
     printf("  N1             inner pressure iterations (SIMPLER/SIMPLERR/IDEAL)\n");
     printf("  N2             inner final iterations (IDEAL)\n");
+    printf("  save_step      save a field snapshot every N outer iterations\n");
     printf("  porevalue      voxel value of the fluid (0 or 1)\n");
     printf("  direction      pressure gradient direction: 1=x, 2=y, 3=z\n");
     printf("  border         solid border thickness added along x (voxels)\n");
@@ -347,6 +349,8 @@ static bool ReadInput(std::ifstream &inifile, const std::string &filename, Input
             if (!parse_int(value, p.N1)) return bad_value("integer");
         } else if (key == "n2") {
             if (!parse_int(value, p.N2)) return bad_value("integer");
+        } else if (key == "save_step") {
+            if (!parse_int(value, p.save_step)) return bad_value("integer");
 
         /* ------------------------- geometry ------------------------ */
         } else if (key == "porevalue") {
@@ -402,6 +406,11 @@ static bool ReadInput(std::ifstream &inifile, const std::string &filename, Input
         std::cerr << "error: " << filename << " - 'maxitSIMPLE' must be > 0\n";
         return false;
     }
+    if (p.save_step <= 0)
+    {
+        std::cerr << "error: " << filename << " - 'save_step' must be > 0\n";
+        return false;
+    }
     if (p.porevalue != 0 && p.porevalue != 1)
     {
         std::cerr << "warning: " << filename << " - 'porevalue' should be 0 or 1, "
@@ -444,6 +453,7 @@ static bool ReadInput(std::ifstream &inifile, const std::string &filename, Input
     printf("simpletol      : %g\n", p.simpletol);
     printf("maxitSIMPLE    : %d\n", p.maxitSIMPLE);
     printf("maxitsolver    : %d\n", p.maxitsolver);
+    printf("save_step      : %d\n", p.save_step);
     printf("porevalue      : %d\n", p.porevalue);
     printf("direction      : %d\n", p.direction);
     printf("border         : %d\n", p.border);
@@ -507,7 +517,7 @@ int main(int argc, char *argv[])
                                 p.dx, p.dy, p.dz,
                                 p.vsolvertol, p.psolvertol, p.pcsolvertol, p.maxitsolver,
                                 p.alpha, p.beta, p.p0, p.gradp, p.mu, p.rho,
-                                p.porevalue, p.direction, p.deltaRMR, p.border);
+                                p.porevalue, p.direction, p.deltaRMR, p.save_step, p.border);
 
     // create the requested solver and run it
     if (p.method == "IDEAL")
